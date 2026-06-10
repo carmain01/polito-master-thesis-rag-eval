@@ -1,0 +1,19 @@
+# Default evaluation configuration
+
+llm:
+  provider: openai
+  model: gpt-4o
+  temperature: 0.0
+  max_tokens: 1024
+
+metrics:
+  - faithfulness
+  - answer_relevance
+  - context_precision
+  - context_recall
+  - semantic_similarity
+
+dataset_path: ""
+output_dir: ./output
+batch_size: 10
+max_concurrency: 5
