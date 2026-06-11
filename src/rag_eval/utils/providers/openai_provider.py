@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import json
 import time
+from typing import Any
 
+import openai
+from openai.types.chat import ChatCompletionMessageParam
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
 from rag_eval.core.config import LLMConfig
@@ -18,9 +21,10 @@ class OpenAIProvider(BaseLLMProvider):
     Uses the official ``openai`` SDK with native async support.
     """
 
+    _client: openai.AsyncOpenAI
+
     def __init__(self, config: LLMConfig) -> None:
         super().__init__(config)
-        import openai
 
         api_key = config.get_api_key()
         if not api_key:
@@ -28,16 +32,16 @@ class OpenAIProvider(BaseLLMProvider):
                 "OpenAI API key is required. Set OPENAI_API_KEY in .env or pass api_key in config."
             )
 
-        kwargs: dict[str, object] = {
+        client_kwargs: dict[str, Any] = {
             "api_key": api_key,
             "timeout": config.timeout,
             "max_retries": 0,  # We handle retries ourselves via tenacity
         }
         api_base = config.get_api_base()
         if api_base:
-            kwargs["base_url"] = api_base
+            client_kwargs["base_url"] = api_base
 
-        self._client = openai.AsyncOpenAI(**kwargs)
+        self._client = openai.AsyncOpenAI(**client_kwargs)
 
     @property
     def provider_name(self) -> str:
@@ -52,10 +56,10 @@ class OpenAIProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> LLMResponse:
         """Send a chat completion request to OpenAI."""
-        messages: list[dict[str, str]] = []
+        messages: list[ChatCompletionMessageParam] = []
         if system:
             messages.append({"role": "system", "content": system})
         messages.append({"role": "user", "content": prompt})
@@ -64,8 +68,8 @@ class OpenAIProvider(BaseLLMProvider):
         response = await self._client.chat.completions.create(
             model=self.config.model,
             messages=messages,
-            temperature=kwargs.get("temperature", self.config.temperature),
-            max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
+            temperature=float(kwargs.get("temperature", self.config.temperature)),
+            max_tokens=int(kwargs.get("max_tokens", self.config.max_tokens)),
         )
         latency_ms = (time.perf_counter() - start) * 1000
 
@@ -93,10 +97,10 @@ class OpenAIProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> dict:
         """Send a chat completion request with JSON response format."""
-        messages: list[dict[str, str]] = []
+        messages: list[ChatCompletionMessageParam] = []
         json_system = system or "You are a helpful assistant."
         json_system += "\nAlways respond with valid JSON."
         messages.append({"role": "system", "content": json_system})
@@ -106,8 +110,8 @@ class OpenAIProvider(BaseLLMProvider):
         response = await self._client.chat.completions.create(
             model=self.config.model,
             messages=messages,
-            temperature=kwargs.get("temperature", self.config.temperature),
-            max_tokens=kwargs.get("max_tokens", self.config.max_tokens),
+            temperature=float(kwargs.get("temperature", self.config.temperature)),
+            max_tokens=int(kwargs.get("max_tokens", self.config.max_tokens)),
             response_format={"type": "json_object"},
         )
         latency_ms = (time.perf_counter() - start) * 1000

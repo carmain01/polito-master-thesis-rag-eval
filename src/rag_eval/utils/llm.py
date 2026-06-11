@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 
 from rag_eval.core.config import CacheConfig, LLMConfig
@@ -33,10 +34,9 @@ class LLMClient:
         self._tracker = UsageTracker()
 
         # Initialize cache
+        self._cache: ResponseCache | None = None
         if enable_cache:
             self._cache = ResponseCache(cache_config or CacheConfig())
-        else:
-            self._cache = None
 
         logger.info(
             "LLMClient initialized: provider=%s, model=%s, cache=%s",
@@ -114,8 +114,6 @@ class LLMClient:
         if use_cache and self._cache:
             cached = self._cache.get(prompt, system, self.config.model)
             if cached is not None:
-                import json
-
                 logger.debug("Cache hit for JSON prompt (len=%d)", len(prompt))
                 return json.loads(cached.text)
 
