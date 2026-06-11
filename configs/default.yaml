@@ -1,10 +1,24 @@
 # Default evaluation configuration
+# By default uses Ollama (local, free) — no API key needed.
+# Make sure Ollama is running: https://ollama.com
 
 llm:
-  provider: openai
-  model: gpt-4o
+  provider: ollama
+  model: llama3.2
   temperature: 0.0
   max_tokens: 1024
+  timeout: 60.0
+  max_retries: 3
+
+embedding:
+  provider: sentence-transformers
+  model: all-MiniLM-L6-v2
+  batch_size: 32
+
+cache:
+  enabled: true
+  directory: .cache/rag_eval
+  # ttl_seconds: null  # No expiration by default
 
 metrics:
   - faithfulness

@@ -22,3 +22,9 @@ Thumbs.db
 # Output
 output/
 *.log
+
+# Cache
+.cache/
+
+# NLTK data
+nltk_data/
