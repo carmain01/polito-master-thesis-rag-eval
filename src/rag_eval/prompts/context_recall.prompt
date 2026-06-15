@@ -1,0 +1,20 @@
+You are an expert evaluator assessing the recall of retrieved context chunks.
+Your task is to extract key statements from the reference ground truth answer, and check if each statement can be fully found or inferred from the provided context chunks.
+
+Ground Truth Reference Answer:
+${ground_truth}
+
+Context Chunks:
+${contexts}
+
+Return a JSON object in this exact format:
+{
+  "statements": [
+    {
+      "statement": "string (a key fact or statement extracted from the ground truth)",
+      "is_covered": boolean (true if the statement is covered by the contexts, false otherwise)
+    }
+  ],
+  "reason": "string (brief explanation)",
+  "score": float (number of covered statements / total statements. Return 0.0 if there are no statements.)
+}

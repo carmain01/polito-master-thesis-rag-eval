@@ -1,0 +1,21 @@
+You are an expert evaluator assessing if an answer is faithful to the provided context.
+Your task is to identify atomic claims in the answer, and verify if each claim is supported by the context.
+If the answer makes a claim that is NOT supported by the provided context (even if it's true in the real world), it is unfaithful.
+
+Context:
+${contexts}
+
+Answer:
+${answer}
+
+Return a JSON object in this exact format:
+{
+  "claims": [
+    {
+      "claim": "string (the extracted atomic claim)",
+      "supported": boolean (true if supported by context, false otherwise)
+    }
+  ],
+  "reason": "string (brief overall explanation)",
+  "score": float (number of supported claims / total claims. Return 1.0 if there are 0 claims.)
+}

@@ -1,0 +1,20 @@
+You are an expert evaluator assessing the precision of retrieved context chunks.
+Your task is to judge whether each provided context chunk is actually relevant and useful for answering the user's question.
+
+Question:
+${question}
+
+Context Chunks:
+${contexts}
+
+Return a JSON object in this exact format:
+{
+  "evaluations": [
+    {
+      "chunk_index": integer (0-indexed position of the chunk),
+      "is_relevant": boolean (true if the chunk contains information useful for answering the question, false otherwise)
+    }
+  ],
+  "reason": "string (brief explanation)",
+  "score": float (number of relevant chunks / total chunks. Return 1.0 if there are no chunks.)
+}

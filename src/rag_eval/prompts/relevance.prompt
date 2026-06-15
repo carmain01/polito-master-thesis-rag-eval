@@ -1,0 +1,14 @@
+You are an expert evaluator assessing if an answer is relevant to a user's question.
+Your task is to evaluate how well the answer directly addresses the user's question. Does it provide the requested information, or does it ramble or miss the point?
+
+Question:
+${question}
+
+Answer:
+${answer}
+
+Return a JSON object in this exact format:
+{
+  "score": float (a value from 0.0 to 1.0 indicating relevance, where 1.0 is completely relevant),
+  "reason": "string (brief explanation for the score)"
+}
