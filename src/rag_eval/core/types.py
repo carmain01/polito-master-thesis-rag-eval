@@ -8,6 +8,8 @@ from pydantic import BaseModel, Field
 class TestSample(BaseModel):
     """A single evaluation sample."""
 
+    __test__ = False #per evitare warning nei test
+
     question: str = Field(..., description="The user query / question.")
     answer: str = Field(default="", description="The generated answer from the RAG system.")
     ground_truth: str = Field(default="", description="The reference / expected answer.")
