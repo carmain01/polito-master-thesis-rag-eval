@@ -52,6 +52,7 @@ class SyntheticDataGenerator:
             question_types = ["factual"]
 
         samples = []
+        seen_questions = set()
         
         system_prompt = (
             "You are an expert dataset creator. Output valid JSON in the format: "
@@ -75,6 +76,27 @@ class SyntheticDataGenerator:
                     )
                     
                     if "question" in result_json and "answer" in result_json:
+                        q_text = result_json["question"].strip()
+                        a_text = result_json["answer"].strip()
+                        
+                        # Quality Filtering
+                        if not q_text or not a_text:
+                            logger.debug(f"Filtered chunk {chunk_id}: empty question or answer.")
+                            continue
+                        if len(q_text) < 10 or len(a_text) < 2:
+                            logger.debug(f"Filtered chunk {chunk_id}: question or answer too short.")
+                            continue
+                        if q_text.lower() == a_text.lower():
+                            logger.debug(f"Filtered chunk {chunk_id}: question identical to answer.")
+                            continue
+                            
+                        # Deduplication
+                        q_norm = q_text.lower()
+                        if q_norm in seen_questions:
+                            logger.debug(f"Filtered chunk {chunk_id}: duplicate question.")
+                            continue
+                        seen_questions.add(q_norm)
+
                         # Distractor context injection (dummy for now, just random other chunk if available)
                         distractor = ""
                         if len(chunks) > 1:
@@ -87,8 +109,8 @@ class SyntheticDataGenerator:
                             random.shuffle(contexts)
 
                         sample = TestSample(
-                            question=result_json["question"],
-                            ground_truth=result_json["answer"],
+                            question=q_text,
+                            ground_truth=a_text,
                             contexts=contexts,
                             metadata={
                                 "source": "synthetic",
