@@ -35,9 +35,9 @@ class Evaluator:
         """Save an intermediate checkpoint of the report."""
         checkpoint_path = self.cache_dir / f"checkpoint_batch_{batch_idx}.json"
         try:
-            # We must serialize the Pydantic models. Assuming they have dict() or model_dump().
-            # In Pydantic v2 it's model_dump(), v1 it's dict(). Let's use model_dump if available, else dict.
-            data = {"results": [r.model_dump() if hasattr(r, 'model_dump') else r.dict() for r in report.results]}
+            # Pydantic v2 provides model_dump() for robust serialization. 
+            # mode="json" ensures all types (like datetimes/UUIDs) are safely converted.
+            data = report.model_dump(mode="json")
             with open(checkpoint_path, "w") as f:
                 json.dump(data, f)
         except Exception as e:
