@@ -26,7 +26,7 @@ class AnswerRelevance(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer:
             return EvalResult(metric_name=self.name, score=0.0, reason="No answer provided.")
-        
+
         prompt = self.prompt_template.safe_substitute(
             question=sample.question,
             answer=sample.answer

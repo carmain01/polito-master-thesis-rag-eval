@@ -26,7 +26,7 @@ class ContextPrecision(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.contexts:
             return EvalResult(metric_name=self.name, score=0.0, reason="No contexts provided.")
-        
+
         contexts_str = "\n".join(f"[{i}] {c}" for i, c in enumerate(sample.contexts))
 
         prompt = self.prompt_template.safe_substitute(

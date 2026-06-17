@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import warnings
+
 from bert_score import score as bert_score
 
 from rag_eval.core.types import EvalResult, TestSample
@@ -26,20 +27,20 @@ class BERTScore(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
             return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
-        
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             # bert_score returns (P, R, F1) tensors
             P, R, F1 = bert_score(
-                [sample.answer], 
-                [sample.ground_truth], 
-                model_type=self.model_type, 
-                lang="en", 
+                [sample.answer],
+                [sample.ground_truth],
+                model_type=self.model_type,
+                lang="en",
                 verbose=False
             )
-        
+
         f1_score = F1.item()
-        
+
         return EvalResult(
             metric_name=self.name,
             score=f1_score,

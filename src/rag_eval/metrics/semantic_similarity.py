@@ -20,15 +20,15 @@ class SemanticSimilarity(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
             return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
-        
+
         try:
             # Embed both texts
             ans_emb = self.embed.embed_single(sample.answer)
             ref_emb = self.embed.embed_single(sample.ground_truth)
-            
+
             # Compute cosine similarity
             sim = cosine_similarity(ans_emb, ref_emb)
-            
+
             # Ensure it is bounded
             sim = max(0.0, min(1.0, sim))
 

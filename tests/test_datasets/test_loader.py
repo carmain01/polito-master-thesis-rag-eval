@@ -1,8 +1,15 @@
 import json
+
 import pytest
-from pathlib import Path
+
 from rag_eval.core.types import TestSample
-from rag_eval.datasets.loader import load_dataset, _apply_mapping, dataset_statistics, validate_dataset
+from rag_eval.datasets.loader import (
+    _apply_mapping,
+    dataset_statistics,
+    load_dataset,
+    validate_dataset,
+)
+
 
 @pytest.fixture
 def sample_data():
@@ -66,7 +73,7 @@ def test_load_dataset_with_mapping(tmp_path):
     data = [{"q": "test?", "a": "ans", "gt": "ref", "ctx": ["c1"]}]
     with open(file_path, "w") as f:
         json.dump(data, f)
-    
+
     mapping = {"q": "question", "a": "answer", "gt": "ground_truth", "ctx": "contexts"}
     samples = load_dataset(file_path, column_mapping=mapping)
     assert len(samples) == 1
@@ -83,9 +90,9 @@ def test_validate_dataset_warnings(caplog, sample_data):
     # Missing answer in one
     sample_data[0]["answer"] = ""
     samples = [TestSample(**d) for d in sample_data]
-    
+
     import logging
     with caplog.at_level(logging.WARNING):
         validate_dataset(samples)
-    
+
     assert "missing 'answer'" in caplog.text

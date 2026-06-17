@@ -6,13 +6,11 @@ import math
 
 import pytest
 
-from rag_eval.core.config import EmbeddingConfig
 from rag_eval.utils.embeddings import (
     EmbeddingClient,
     cosine_similarity,
     pairwise_cosine_similarity,
 )
-
 
 # ---------------------------------------------------------------------------
 # Cosine similarity tests (pure math, no model needed)

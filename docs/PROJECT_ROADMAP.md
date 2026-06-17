@@ -157,10 +157,10 @@ This document describes **all the phases** required to bring the framework from 
 > **Goal**: Build the data ingestion pipeline and the synthetic dataset generator.
 
 ### 4.1 Dataset Loader Enhancements (`datasets/loader.py`)
-- [ ] Add CSV loading with configurable column mapping
-- [ ] Add HuggingFace Datasets integration (`datasets` library)
-- [ ] Add dataset validation (check required fields, warn on missing optional fields)
-- [ ] Add dataset statistics summary (num samples, avg context length, etc.)
+- [x] Add CSV loading with configurable column mapping
+- [x] Add HuggingFace Datasets integration (`datasets` library)
+- [x] Add dataset validation (check required fields, warn on missing optional fields)
+- [x] Add dataset statistics summary (num samples, avg context length, etc.)
 
 ### 4.2 Benchmark Adapters (`datasets/benchmarks/`)
 - [ ] Implement HotpotQA adapter (multi-hop QA)
@@ -172,23 +172,23 @@ This document describes **all the phases** required to bring the framework from 
 - [ ] Write unit tests for each adapter
 
 ### 4.3 Synthetic Data Generator (`datasets/synthetic.py`) ⭐ Central Feature
-- [ ] Implement document chunking strategy (configurable chunk size/overlap)
-- [ ] Design LLM prompts for QA pair generation from document chunks
-- [ ] Implement question type control:
+- [x] Implement document chunking strategy (configurable chunk size/overlap)
+- [x] Design LLM prompts for QA pair generation from document chunks
+- [x] Implement question type control:
   - Factual questions (single-context)
   - Multi-hop questions (require combining multiple chunks)
   - Reasoning questions (require inference)
   - Comparative questions (compare entities/concepts)
-- [ ] Implement difficulty levels:
+- [x] Implement difficulty levels:
   - Easy: answer is explicit in a single chunk
   - Medium: requires paraphrasing or minor synthesis
   - Hard: requires combining information across chunks
-- [ ] Implement distractor context injection (plausible but irrelevant chunks)
-- [ ] Implement automatic ground truth generation
-- [ ] Add metadata annotation to each sample (source, chunk IDs, question type, difficulty)
-- [ ] Add deduplication and quality filtering
-- [ ] Write comprehensive unit tests
-- [ ] Document the generation methodology for the thesis
+- [x] Implement distractor context injection (plausible but irrelevant chunks)
+- [x] Implement automatic ground truth generation
+- [x] Add metadata annotation to each sample (source, chunk IDs, question type, difficulty)
+- [x] Add deduplication and quality filtering
+- [x] Write comprehensive unit tests
+- [x] Document the generation methodology for the thesis
 
 ### Deliverables
 - Robust dataset loading from multiple formats
@@ -327,8 +327,8 @@ This document describes **all the phases** required to bring the framework from 
 - [ ] Core models serialization/deserialization
 - [ ] Config loading from YAML
 - [ ] All metrics with known input/output pairs
-- [ ] Dataset loaders with sample files
-- [ ] Synthetic generator output validation
+- [x] Dataset loaders with sample files
+- [x] Synthetic generator output validation
 - [ ] LLM client (mocked)
 - [ ] Report generators
 

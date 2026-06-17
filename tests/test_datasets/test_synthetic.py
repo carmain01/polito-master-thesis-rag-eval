@@ -1,7 +1,9 @@
-import pytest
 from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from rag_eval.datasets.synthetic import SyntheticDataGenerator
-from rag_eval.core.types import TestSample
+
 
 @pytest.fixture
 def mock_llm_client():
@@ -47,7 +49,7 @@ async def test_quality_filtering(mock_llm_client):
         {"question": "What is a good valid question?", "answer": "Valid answer"} # Good
     ]
     generator = SyntheticDataGenerator(llm_client=mock_llm_client)
-    
+
     with patch.object(generator.chunking_service, 'semantic_aware_chunking', return_value=["Chunk"]):
         samples = await generator.generate_qa_pairs("Text", num_questions_per_chunk=3)
         assert len(samples) == 1

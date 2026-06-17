@@ -25,7 +25,7 @@ class TokenF1(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
             return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
-        
+
         ref_tokens = normalize_text(sample.ground_truth).split()
         hyp_tokens = normalize_text(sample.answer).split()
 
@@ -39,7 +39,7 @@ class TokenF1(BaseMetric):
         precision = common_tokens / len(hyp_tokens)
         recall = common_tokens / len(ref_tokens)
         f1 = 2 * (precision * recall) / (precision + recall)
-        
+
         return EvalResult(
             metric_name=self.name,
             score=f1,

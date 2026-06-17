@@ -25,8 +25,8 @@ class EmbeddingClient:
 
     def __init__(self, config: EmbeddingConfig | None = None) -> None:
         self.config = config or EmbeddingConfig()
-        self._model = None 
-        
+        self._model = None
+
     def _load_model(self):
         """Lazy-load the Sentence Transformer model (avoids slow import at startup)."""
         if self._model is None:

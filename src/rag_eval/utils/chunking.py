@@ -1,7 +1,5 @@
-from aiohttp import client_exceptions
-import logging
 import re
-from typing import List
+
 import numpy as np
 
 _ABBREVIATIONS = {
@@ -58,9 +56,9 @@ def get_chunking_model():
     return SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
 
 
-def _tokenize_paragraph(para: str) -> List[str]:
+def _tokenize_paragraph(para: str) -> list[str]:
     tokens = _SENT_SPLIT.split(para)
-    raw_sents: List[str] = []
+    raw_sents: list[str] = []
     i = 0
     while i < len(tokens):
         if i + 2 < len(tokens):
@@ -71,8 +69,8 @@ def _tokenize_paragraph(para: str) -> List[str]:
             i += 1
     return raw_sents
 
-def _rejoin_abbreviations_and_decimals(raw_sents: List[str]) -> List[str]:
-    merged: List[str] = []
+def _rejoin_abbreviations_and_decimals(raw_sents: list[str]) -> list[str]:
+    merged: list[str] = []
     for sent in raw_sents:
         sent = sent.strip()
         if not sent:
@@ -88,10 +86,10 @@ def _rejoin_abbreviations_and_decimals(raw_sents: List[str]) -> List[str]:
     return merged
 
 
-def _split_sentences(text: str) -> List[str]:
+def _split_sentences(text: str) -> list[str]:
 
     paragraphs = re.split(r"\n\s*\n", text)
-    sentences: List[str] = []
+    sentences: list[str] = []
 
     for para in paragraphs:
         para = para.strip()
@@ -117,7 +115,7 @@ class ChunkingService:
     def __init__(self):
         self.semantic_model = get_chunking_model()
 
-    def chunk_text(self, text: str, max_chunk_chars: int = 1500) -> List[str]:
+    def chunk_text(self, text: str, max_chunk_chars: int = 1500) -> list[str]:
         """Keep parser records intact unless they are too long, then split semantically."""
         text = text.strip()
         if not text:
@@ -141,13 +139,13 @@ class ChunkingService:
 
         return self.fast_chunking(text)
 
-    def fast_chunking(self, text: str) -> List[str]:
+    def fast_chunking(self, text: str) -> list[str]:
         """
         Fallback rapido basato su lunghezza del testo.
         """
         return [text[i : i + 800] for i in range(0, len(text), 800)]
 
-    def _clean_sentences(self, sentences: List[str]) -> List[str]:
+    def _clean_sentences(self, sentences: list[str]) -> list[str]:
         cleaned = []
         for s in sentences:
             s = s.strip()
@@ -157,7 +155,7 @@ class ChunkingService:
                 cleaned.append(s)
         return cleaned
 
-    def _compute_centroid_similarity(self, embeddings: np.ndarray, current_indices: List[int], target_embedding: np.ndarray) -> float:
+    def _compute_centroid_similarity(self, embeddings: np.ndarray, current_indices: list[int], target_embedding: np.ndarray) -> float:
         centroid = np.mean(embeddings[list(current_indices)], axis=0)
         centroid_norm = centroid / (np.linalg.norm(centroid) + 1e-10)
         return float(np.dot(centroid_norm, target_embedding))
@@ -184,7 +182,7 @@ class ChunkingService:
         min_chunk_chars: int = 100,
         max_chunk_chars: int = 1500,
         overlap: int = 1,
-    ) -> List[str]:
+    ) -> list[str]:
 
         sentences = _split_sentences(text)
         cleaned = self._clean_sentences(sentences)
@@ -197,8 +195,8 @@ class ChunkingService:
 
         embeddings = self.semantic_model.encode(cleaned, normalize_embeddings=True)
 
-        chunks: List[str] = []
-        current_indices: List[int] = [0]
+        chunks: list[str] = []
+        current_indices: list[int] = [0]
 
         for i in range(1, len(cleaned)):
             sim = self._compute_centroid_similarity(embeddings, current_indices, embeddings[i])

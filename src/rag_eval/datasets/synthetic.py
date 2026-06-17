@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import random
-from typing import Any, List
 
 from rag_eval.core.config import LLMConfig
 from rag_eval.core.types import TestSample
-from rag_eval.utils.llm import LLMClient
 from rag_eval.utils.chunking import ChunkingService
+from rag_eval.utils.llm import LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +29,7 @@ class SyntheticDataGenerator:
             self.llm_client = LLMClient(config=config)
         else:
             self.llm_client = llm_client
-            
+
         self.chunking_service = ChunkingService()
 
 
@@ -40,9 +38,9 @@ class SyntheticDataGenerator:
         self,
         text: str,
         num_questions_per_chunk: int = 1,
-        question_types: List[str] | None = None,
+        question_types: list[str] | None = None,
         difficulty: str = "medium"
-    ) -> List[TestSample]:
+    ) -> list[TestSample]:
         """Generate synthetic QA pairs from a given document text."""
         chunks = self.chunking_service.semantic_aware_chunking(text)
         if not chunks:
@@ -53,7 +51,7 @@ class SyntheticDataGenerator:
 
         samples = []
         seen_questions = set()
-        
+
         system_prompt = (
             "You are an expert dataset creator. Output valid JSON in the format: "
             "{\"question\": \"...\", \"answer\": \"...\"}"
@@ -63,22 +61,22 @@ class SyntheticDataGenerator:
             for _ in range(num_questions_per_chunk):
                 q_type = random.choice(question_types)
                 instruction = PROMPT_TEMPLATES.get(q_type, PROMPT_TEMPLATES["factual"])
-                
+
                 # Add difficulty modifier to instruction
                 difficulty_mod = f" Make the question of {difficulty} difficulty."
-                
+
                 prompt = f"{instruction}{difficulty_mod}\n\nText Context:\n{chunk}"
-                
+
                 try:
                     result_json = await self.llm_client.complete_json(
                         prompt=prompt,
                         system=system_prompt
                     )
-                    
+
                     if "question" in result_json and "answer" in result_json:
                         q_text = result_json["question"].strip()
                         a_text = result_json["answer"].strip()
-                        
+
                         # Quality Filtering
                         if not q_text or not a_text:
                             logger.debug(f"Filtered chunk {chunk_id}: empty question or answer.")
@@ -89,7 +87,7 @@ class SyntheticDataGenerator:
                         if q_text.lower() == a_text.lower():
                             logger.debug(f"Filtered chunk {chunk_id}: question identical to answer.")
                             continue
-                            
+
                         # Deduplication
                         q_norm = q_text.lower()
                         if q_norm in seen_questions:
@@ -102,7 +100,7 @@ class SyntheticDataGenerator:
                         if len(chunks) > 1:
                             other_chunks = [c for i, c in enumerate(chunks) if i != chunk_id]
                             distractor = random.choice(other_chunks)
-                            
+
                         contexts = [chunk]
                         if distractor:
                             contexts.append(distractor)

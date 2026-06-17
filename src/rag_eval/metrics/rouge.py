@@ -24,10 +24,10 @@ class ROUGE(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
             return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
-        
+
         scores = self.scorer.score(sample.ground_truth, sample.answer)
         score_obj = scores[self.variant]
-        
+
         return EvalResult(
             metric_name=self.name,
             score=score_obj.fmeasure,

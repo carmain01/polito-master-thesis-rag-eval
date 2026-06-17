@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
-import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
 from rag_eval.core.config import LLMConfig
-from rag_eval.utils.provider import BaseLLMProvider, LLMResponse, MODEL_PRICING
+from rag_eval.utils.provider import MODEL_PRICING, LLMResponse
 from rag_eval.utils.providers import create_provider
-
 
 # ---------------------------------------------------------------------------
 # Provider factory tests

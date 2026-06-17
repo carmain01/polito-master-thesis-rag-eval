@@ -26,12 +26,12 @@ class ExactMatch(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
             return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
-        
+
         ref_norm = normalize_answer(sample.ground_truth)
         hyp_norm = normalize_answer(sample.answer)
 
         is_match = (ref_norm == hyp_norm)
-        
+
         return EvalResult(
             metric_name=self.name,
             score=1.0 if is_match else 0.0,

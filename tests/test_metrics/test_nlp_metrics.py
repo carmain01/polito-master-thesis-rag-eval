@@ -1,14 +1,16 @@
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
 from rag_eval.core.types import TestSample
-from rag_eval.metrics.bleu import BLEU
-from rag_eval.metrics.rouge import ROUGE
-from rag_eval.metrics.f1 import TokenF1
-from rag_eval.metrics.exact_match import ExactMatch
 from rag_eval.metrics.bert_score import BERTScore
+from rag_eval.metrics.bleu import BLEU
+from rag_eval.metrics.exact_match import ExactMatch
+from rag_eval.metrics.f1 import TokenF1
+from rag_eval.metrics.rouge import ROUGE
 from rag_eval.metrics.semantic_similarity import SemanticSimilarity
 from rag_eval.utils.embeddings import EmbeddingClient
+
 
 @pytest.fixture
 def sample():
@@ -34,7 +36,7 @@ async def test_bleu(sample, sample_mismatch):
     res_match = await metric.score(sample)
     assert res_match.metric_name == "bleu-4"
     assert res_match.score == 1.0
-    
+
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score < 1.0
 
@@ -44,7 +46,7 @@ async def test_rouge(sample, sample_mismatch):
     res_match = await metric.score(sample)
     assert res_match.metric_name == "rougeL"
     assert res_match.score == 1.0
-    
+
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score < 1.0
 
@@ -54,7 +56,7 @@ async def test_f1(sample, sample_mismatch):
     res_match = await metric.score(sample)
     assert res_match.metric_name == "token_f1"
     assert res_match.score == 1.0
-    
+
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score < 1.0
 
@@ -64,20 +66,20 @@ async def test_exact_match(sample, sample_mismatch):
     res_match = await metric.score(sample)
     assert res_match.metric_name == "exact_match"
     assert res_match.score == 1.0
-    
+
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score == 0.0
 
 @pytest.mark.asyncio
 async def test_semantic_similarity(sample, sample_mismatch):
     mock_embed = MagicMock(spec=EmbeddingClient)
-    mock_embed.embed = AsyncMock(side_effect=[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
-    
+    mock_embed.embed_single = MagicMock(side_effect=[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+
     metric = SemanticSimilarity(mock_embed)
     res_match = await metric.score(sample)
     assert res_match.metric_name == "semantic_similarity"
     assert res_match.score == 1.0
-    
+
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score == 0.0
 

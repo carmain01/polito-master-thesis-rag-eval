@@ -23,7 +23,7 @@ def load_dataset(
             e.g. {"input_text": "question", "target_text": "ground_truth"}
     """
     path_str = str(path)
-    
+
     if format is None:
         if path_str.endswith(".json"):
             format = "json"
@@ -33,7 +33,7 @@ def load_dataset(
             format = "csv"
         else:
             format = "hf"  # default fallback if no extension
-            
+
     samples: list[TestSample] = []
     column_mapping = column_mapping or {}
 
@@ -89,15 +89,15 @@ def _apply_mapping(data: dict[str, Any], mapping: dict[str, str]) -> dict[str, A
 def validate_dataset(samples: list[TestSample]) -> None:
     """Validate the loaded dataset and log warnings for missing optional fields."""
     import logging
-    
+
     if not samples:
         logging.warning("Dataset is empty.")
         return
-        
+
     missing_answers = sum(1 for s in samples if not s.answer)
     missing_contexts = sum(1 for s in samples if not s.contexts)
     missing_gt = sum(1 for s in samples if not s.ground_truth)
-    
+
     total = len(samples)
     if missing_answers > 0:
         logging.warning(f"Dataset validation: {missing_answers}/{total} samples are missing 'answer'.")
@@ -110,17 +110,17 @@ def dataset_statistics(samples: list[TestSample]) -> dict[str, Any]:
     """Compute basic statistics for a dataset."""
     if not samples:
         return {"num_samples": 0}
-        
+
     avg_context_len = 0
     avg_contexts_count = 0
-    
+
     for s in samples:
         avg_contexts_count += len(s.contexts)
         for ctx in s.contexts:
             avg_context_len += len(ctx)
-            
+
     total_contexts = sum(len(s.contexts) for s in samples)
-            
+
     return {
         "num_samples": len(samples),
         "avg_contexts_per_sample": avg_contexts_count / len(samples),

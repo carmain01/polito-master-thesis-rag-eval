@@ -26,7 +26,7 @@ class Faithfulness(BaseMetric):
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer:
             return EvalResult(metric_name=self.name, score=0.0, reason="No answer provided.")
-        
+
         contexts_str = "\n".join(f"[{i}] {c}" for i, c in enumerate(sample.contexts))
         if not contexts_str:
             contexts_str = "No contexts provided."
