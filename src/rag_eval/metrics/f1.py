@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import string
+from collections import Counter
 
 from rag_eval.core.types import EvalResult, TestSample
 from rag_eval.metrics.base import BaseMetric
@@ -32,7 +33,9 @@ class TokenF1(BaseMetric):
         if not ref_tokens or not hyp_tokens:
             return EvalResult(metric_name=self.name, score=0.0, reason="Empty after normalization.")
 
-        common_tokens = sum(1 for token in hyp_tokens if token in ref_tokens)
+        ref_counter = Counter(ref_tokens)
+        hyp_counter = Counter(hyp_tokens)
+        common_tokens = sum((ref_counter & hyp_counter).values())
         if common_tokens == 0:
             return EvalResult(metric_name=self.name, score=0.0, reason="No common tokens.")
 

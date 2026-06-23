@@ -8,7 +8,6 @@ from typing import Any
 
 import openai
 from openai.types.chat import ChatCompletionMessageParam
-from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
 from rag_eval.core.config import LLMConfig
 from rag_eval.utils.provider import BaseLLMProvider, LLMResponse
@@ -43,15 +42,15 @@ class OpenAIProvider(BaseLLMProvider):
 
         self._client = openai.AsyncOpenAI(**client_kwargs)
 
+        # Apply configurable retry from config.max_retries
+        _retry = self._make_retry()
+        self.complete = _retry(self.complete)
+        self.complete_json = _retry(self.complete_json)
+
     @property
     def provider_name(self) -> str:
         return "openai"
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
     async def complete(
         self,
         prompt: str,
@@ -88,11 +87,6 @@ class OpenAIProvider(BaseLLMProvider):
             cost_estimate=self.estimate_cost(input_tokens, output_tokens),
         )
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
     async def complete_json(
         self,
         prompt: str,

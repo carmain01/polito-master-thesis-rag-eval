@@ -61,6 +61,18 @@ class BaseLLMProvider(ABC):
 
     def __init__(self, config: LLMConfig) -> None:
         self.config = config
+        # Stores the last LLMResponse from complete_json(), used by LLMClient for usage tracking
+        self._last_response: LLMResponse | None = None
+
+    def _make_retry(self):
+        """Create a tenacity retry decorator based on config.max_retries."""
+        from tenacity import retry, stop_after_attempt, wait_exponential_jitter
+
+        return retry(
+            stop=stop_after_attempt(self.config.max_retries),
+            wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
+            reraise=True,
+        )
 
     @property
     @abstractmethod

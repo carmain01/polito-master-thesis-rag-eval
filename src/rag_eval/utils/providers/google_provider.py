@@ -5,8 +5,6 @@ from __future__ import annotations
 import json
 import time
 
-from tenacity import retry, stop_after_attempt, wait_exponential_jitter
-
 from rag_eval.core.config import LLMConfig
 from rag_eval.utils.provider import BaseLLMProvider, LLMResponse
 
@@ -31,15 +29,15 @@ class GoogleProvider(BaseLLMProvider):
 
         self._client = genai.Client(api_key=api_key)
 
+        # Apply configurable retry from config.max_retries
+        _retry = self._make_retry()
+        self.complete = _retry(self.complete)
+        self.complete_json = _retry(self.complete_json)
+
     @property
     def provider_name(self) -> str:
         return "google"
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
     async def complete(
         self,
         prompt: str,
@@ -81,11 +79,6 @@ class GoogleProvider(BaseLLMProvider):
             cost_estimate=self.estimate_cost(input_tokens, output_tokens),
         )
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
     async def complete_json(
         self,
         prompt: str,

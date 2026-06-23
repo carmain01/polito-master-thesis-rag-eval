@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any, Dict, List, Optional
 from collections import defaultdict
 
@@ -66,18 +67,12 @@ class ConfigurationComparator:
                 if HAS_SCIPY and min_len > 1:
                     # ttest_rel returns Ttest_relResult(statistic, pvalue)
                     t_stat, p_val = stats.ttest_rel(c_scores, b_scores)
-                    p_value = float(p_val) if not getattr(stats, "np", None) and p_val == p_val else p_val # Handle NaNs
-                    if p_value is not None and not isinstance(p_value, float):
-                        try:
-                            import numpy as np
-                            if np.isnan(p_value):
-                                p_value = 1.0
-                            else:
-                                p_value = float(p_value)
-                        except:
-                            pass
+                    p_value = float(p_val)
+                    # Handle NaN p-values (e.g. when all scores are identical)
+                    if math.isnan(p_value):
+                        p_value = 1.0
                     
-                    if p_value is not None and p_value < 0.05:
+                    if p_value < 0.05:
                         significant = True
 
                 config_results[metric] = {

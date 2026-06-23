@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -30,7 +32,7 @@ class EvalReport(BaseModel):
     """Aggregated evaluation report across all samples and metrics."""
 
     results: list[EvalResult] = Field(default_factory=list)
-    summary: dict[str, float] = Field(default_factory=dict, description="Metric name → avg score.")
+    summary: dict[str, Any] = Field(default_factory=dict, description="Metric name → avg score, plus cost aggregates.")
 
     def add_result(self, result: EvalResult) -> None:
         self.results.append(result)

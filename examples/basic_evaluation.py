@@ -1,9 +1,13 @@
 """Basic evaluation example — demonstrates the core workflow."""
 
+from rag_eval.core.config import LLMConfig
 from rag_eval.core.types import TestSample
+from rag_eval.metrics.exact_match import ExactMatch
+from rag_eval.metrics.f1 import TokenF1
 from rag_eval.metrics.faithfulness import Faithfulness
 from rag_eval.metrics.relevance import AnswerRelevance
 from rag_eval.pipeline.evaluator import Evaluator
+from rag_eval.utils.llm import LLMClient
 
 
 def main() -> None:
@@ -20,17 +24,31 @@ def main() -> None:
         ),
     ]
 
-    # 2. Choose metrics
-    metrics = [Faithfulness(), AnswerRelevance()]
+    # 2. Create an LLM client (defaults to Ollama/llama3.2 — local and free)
+    llm_config = LLMConfig()
+    llm_client = LLMClient(config=llm_config)
 
-    # 3. Run evaluation
+    # 3. Choose metrics
+    #    - LLM-as-judge metrics require an llm_client
+    #    - Traditional NLP metrics (ExactMatch, TokenF1) work without an LLM
+    metrics = [
+        Faithfulness(llm_client=llm_client),
+        AnswerRelevance(llm_client=llm_client),
+        ExactMatch(),
+        TokenF1(),
+    ]
+
+    # 4. Run evaluation
     evaluator = Evaluator(metrics=metrics)
     report = evaluator.evaluate(samples)
 
-    # 4. Print results
+    # 5. Print results
     print("=== Evaluation Summary ===")
-    for metric_name, avg_score in report.summary.items():
-        print(f"  {metric_name}: {avg_score:.3f}")
+    for key, value in report.summary.items():
+        if isinstance(value, float):
+            print(f"  {key}: {value:.3f}")
+        else:
+            print(f"  {key}: {value}")
 
 
 if __name__ == "__main__":

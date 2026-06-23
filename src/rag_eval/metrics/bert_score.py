@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import warnings
 
@@ -24,20 +25,27 @@ class BERTScore(BaseMetric):
     def name(self) -> str:
         return "bert_score"
 
+    def _compute_bert_score(self, answer: str, ground_truth: str) -> tuple:
+        """Run BERTScore synchronously (called via asyncio.to_thread)."""
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            P, R, F1 = bert_score(
+                [answer],
+                [ground_truth],
+                model_type=self.model_type,
+                lang="en",
+                verbose=False,
+            )
+        return P, R, F1
+
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
             return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
 
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            # bert_score returns (P, R, F1) tensors
-            P, R, F1 = bert_score(
-                [sample.answer],
-                [sample.ground_truth],
-                model_type=self.model_type,
-                lang="en",
-                verbose=False
-            )
+        # Offload CPU-intensive BERTScore computation to a thread to avoid blocking the event loop
+        P, R, F1 = await asyncio.to_thread(
+            self._compute_bert_score, sample.answer, sample.ground_truth
+        )
 
         f1_score = F1.item()
 
