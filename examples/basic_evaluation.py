@@ -7,6 +7,7 @@ from rag_eval.metrics.f1 import TokenF1
 from rag_eval.metrics.faithfulness import Faithfulness
 from rag_eval.metrics.relevance import AnswerRelevance
 from rag_eval.pipeline.evaluator import Evaluator
+from rag_eval.reports.generator import ReportGenerator
 from rag_eval.utils.llm import LLMClient
 
 
@@ -42,13 +43,20 @@ def main() -> None:
     evaluator = Evaluator(metrics=metrics)
     report = evaluator.evaluate(samples)
 
-    # 5. Print results
-    print("=== Evaluation Summary ===")
-    for key, value in report.summary.items():
-        if isinstance(value, float):
-            print(f"  {key}: {value:.3f}")
-        else:
-            print(f"  {key}: {value}")
+    # 5. Generate reports
+    print("\nGenerating Reports...")
+    generator = ReportGenerator(report)
+    
+    generator.to_console()
+    
+    generator.to_json("output/report.json")
+    print(" - Saved JSON report to output/report.json")
+    
+    generator.to_csv("output/report.csv")
+    print(" - Saved CSV report to output/report.csv")
+    
+    generator.to_html("output/report.html")
+    print(" - Saved HTML report to output/report.html")
 
 
 if __name__ == "__main__":
