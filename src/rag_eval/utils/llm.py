@@ -123,9 +123,10 @@ class LLMClient:
         # Track and cache the raw response if available
         if hasattr(self._provider, "_last_response"):
             raw_response = self._provider._last_response
-            self._tracker.record(raw_response)
-            if use_cache and self._cache:
-                self._cache.put(prompt, system, self.config.model, raw_response)
+            if raw_response is not None:
+                self._tracker.record(raw_response)
+                if use_cache and self._cache:
+                    self._cache.put(prompt, system, self.config.model, raw_response)
 
         return result
 

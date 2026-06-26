@@ -1,0 +1,54 @@
+[
+  {
+    "question": "What is the primary function of the United Nations Security Council?",
+    "answer": "The primary function of the United Nations Security Council is to maintain international peace and security.",
+    "ground_truth": "The UN Security Council is responsible for the maintenance of international peace and security, including the authority to authorize military action and impose sanctions.",
+    "contexts": [
+      "The United Nations Security Council (UNSC) is one of the six principal organs of the United Nations. Its primary responsibility is the maintenance of international peace and security. The Council has 15 members: 5 permanent members with veto power (China, France, Russia, the United Kingdom, and the United States) and 10 non-permanent members elected for two-year terms.",
+      "The General Assembly is the main deliberative organ of the United Nations, composed of all member states. Unlike the Security Council, the General Assembly cannot issue binding resolutions on member states."
+    ],
+    "metadata": {"source": "synthetic", "question_type": "factual", "difficulty": "easy"}
+  },
+  {
+    "question": "How does photosynthesis convert sunlight into energy for plants?",
+    "answer": "Photosynthesis converts sunlight into chemical energy by using chlorophyll in the chloroplasts to absorb light, which drives a reaction that converts carbon dioxide and water into glucose and oxygen.",
+    "ground_truth": "In photosynthesis, plants use chlorophyll to capture light energy and convert carbon dioxide and water into glucose (C6H12O6) and oxygen (O2) through light-dependent and light-independent reactions.",
+    "contexts": [
+      "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy, usually from the sun, into chemical energy stored in glucose. This process occurs primarily in the chloroplasts of plant cells, where chlorophyll absorbs light energy. The overall equation is: 6CO2 + 6H2O + light energy → C6H12O6 + 6O2.",
+      "The Calvin cycle, also known as the light-independent reactions, takes place in the stroma of the chloroplast. During this cycle, carbon dioxide is fixed into organic molecules using the ATP and NADPH produced during the light-dependent reactions.",
+      "Cellular respiration is the process by which organisms break down glucose to release energy in the form of ATP. This process is essentially the reverse of photosynthesis."
+    ],
+    "metadata": {"source": "synthetic", "question_type": "reasoning", "difficulty": "medium"}
+  },
+  {
+    "question": "What are the key differences between TCP and UDP protocols?",
+    "answer": "TCP is connection-oriented, reliable, and guarantees ordered delivery, while UDP is connectionless, faster, and does not guarantee delivery or order.",
+    "ground_truth": "TCP (Transmission Control Protocol) provides reliable, ordered, and error-checked delivery through a connection-oriented approach with handshaking. UDP (User Datagram Protocol) is connectionless, offering faster transmission without guarantees of delivery, ordering, or error checking.",
+    "contexts": [
+      "TCP (Transmission Control Protocol) is a connection-oriented protocol that establishes a reliable communication channel between two devices through a three-way handshake. It guarantees that data packets arrive in order, are not duplicated, and are error-free. TCP is used for applications where reliability is critical, such as web browsing (HTTP/HTTPS), email (SMTP), and file transfer (FTP).",
+      "UDP (User Datagram Protocol) is a connectionless protocol that sends data without establishing a dedicated connection. It does not guarantee delivery, order, or error checking, making it faster and more efficient for applications that can tolerate some data loss, such as video streaming, online gaming, and DNS lookups."
+    ],
+    "metadata": {"source": "synthetic", "question_type": "comparative", "difficulty": "medium"}
+  },
+  {
+    "question": "Why did the Roman Empire fall?",
+    "answer": "The Roman Empire fell due to a combination of internal factors like political instability, economic troubles, and military overextension, along with external pressures from barbarian invasions.",
+    "ground_truth": "The fall of the Western Roman Empire in 476 AD resulted from a complex interplay of factors including political corruption, economic decline, military overexpansion, barbarian invasions (Visigoths, Vandals, Ostrogoths), and the division of the empire into Eastern and Western halves.",
+    "contexts": [
+      "The decline of the Roman Empire was a gradual process spanning several centuries. Historians have identified numerous contributing factors, including political instability (with over 50 emperors in the 3rd century alone), rampant corruption, economic inflation, heavy taxation, and the increasing difficulty of defending the empire's vast borders.",
+      "The barbarian invasions of the 4th and 5th centuries dealt severe blows to the Western Roman Empire. The Visigoths sacked Rome in 410 AD, and the Vandals did so again in 455 AD. The last Western Roman Emperor, Romulus Augustulus, was deposed by the Germanic chieftain Odoacer in 476 AD.",
+      "The Eastern Roman Empire, later known as the Byzantine Empire, survived the fall of the West and continued for nearly a thousand years until the fall of Constantinople to the Ottoman Turks in 1453."
+    ],
+    "metadata": {"source": "synthetic", "question_type": "multi-hop", "difficulty": "hard"}
+  },
+  {
+    "question": "What is the role of mitochondria in a cell?",
+    "answer": "Mitochondria are the powerhouses of the cell, responsible for producing ATP through cellular respiration.",
+    "ground_truth": "Mitochondria are organelles that generate most of the cell's supply of adenosine triphosphate (ATP) through oxidative phosphorylation, a process that uses oxygen and nutrients to produce energy.",
+    "contexts": [
+      "Mitochondria are double-membrane-bound organelles found in most eukaryotic cells. Often referred to as the 'powerhouses of the cell,' they generate most of the cell's supply of adenosine triphosphate (ATP), which is used as a source of chemical energy. Mitochondria have their own DNA and are thought to have originated from an ancient symbiotic relationship between a primitive eukaryotic cell and an aerobic bacterium.",
+      "The endoplasmic reticulum (ER) is another important organelle involved in the synthesis of proteins and lipids. The rough ER is studded with ribosomes and is involved in protein synthesis, while the smooth ER is involved in lipid synthesis and detoxification."
+    ],
+    "metadata": {"source": "synthetic", "question_type": "factual", "difficulty": "easy"}
+  }
+]

@@ -104,16 +104,22 @@ class Evaluator:
         total_output_tokens = 0
         total_cost = 0.0
 
-        for res in report.results:
-            if "total_tokens" in res.metadata:
-                pass # Just ensuring it exists, but we sum specific tokens if available
-            input_toks = res.metadata.get("prompt_tokens", 0)
-            output_toks = res.metadata.get("completion_tokens", 0)
-            cost = res.metadata.get("estimated_cost", 0.0)
-
-            total_input_tokens += input_toks
-            total_output_tokens += output_toks
-            total_cost += cost
+        # Get unique LLM clients from metrics
+        llm_clients = {metric.llm for metric in self.metrics if hasattr(metric, "llm") and metric.llm is not None}
+        
+        if llm_clients:
+            # Prefer global usage tracker from LLM clients (avoids missing JSON mode tokens)
+            for llm in llm_clients:
+                if hasattr(llm, "usage"):
+                    total_input_tokens += llm.usage.total_input_tokens
+                    total_output_tokens += llm.usage.total_output_tokens
+                    total_cost += llm.usage.total_cost
+        else:
+            # Fallback to per-result metadata
+            for res in report.results:
+                total_input_tokens += res.metadata.get("prompt_tokens", 0)
+                total_output_tokens += res.metadata.get("completion_tokens", 0)
+                total_cost += res.metadata.get("estimated_cost", 0.0)
 
         report.summary["total_input_tokens"] = total_input_tokens
         report.summary["total_output_tokens"] = total_output_tokens
