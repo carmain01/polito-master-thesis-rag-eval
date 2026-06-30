@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
 from rag_eval.core.config import CacheConfig, LLMConfig
 from rag_eval.utils.cache import ResponseCache
@@ -20,7 +21,7 @@ class LLMClient:
     This is the main entry point for making LLM calls in the framework.
     It delegates to the appropriate provider based on config, caches responses
     to disk, and tracks token usage and costs.
-    
+
     """
 
     def __init__(
@@ -99,7 +100,7 @@ class LLMClient:
         system: str = "",
         use_cache: bool = True,
         **kwargs: object,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a prompt and get a structured JSON response.
 
         Args:
@@ -112,11 +113,12 @@ class LLMClient:
             Parsed JSON response as a dictionary.
         """
         # For JSON, we use the underlying complete to get the full response for caching
+        from typing import cast, Any
         if use_cache and self._cache:
             cached = self._cache.get(prompt, system, self.config.model)
             if cached is not None:
                 logger.debug("Cache hit for JSON prompt (len=%d)", len(prompt))
-                return json.loads(cached.text)
+                return cast(dict[str, Any], json.loads(cached.text))
 
         # Call provider's JSON mode
         result = await self._provider.complete_json(prompt, system, **kwargs)

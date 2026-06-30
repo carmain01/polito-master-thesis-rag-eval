@@ -8,12 +8,12 @@ import json
 import logging
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 import typer
 from rich.console import Console
 
-from rag_eval.core.config import EvalConfig
+from rag_eval.core.config import EvalConfig, LLMConfig
 from rag_eval.core.registry import MetricRegistry
 from rag_eval.core.types import EvalReport
 from rag_eval.datasets.loader import load_dataset
@@ -34,6 +34,7 @@ console = Console()
 # ---------------------------------------------------------------------------
 # Global options (--verbose / --quiet)
 # ---------------------------------------------------------------------------
+
 
 class Verbosity(str, Enum):
     verbose = "verbose"
@@ -64,8 +65,15 @@ def _version_callback(value: bool) -> None:
 @app.callback()
 def main_callback(
     verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Enable debug logging.")] = False,
-    quiet: Annotated[bool, typer.Option("--quiet", "-q", help="Suppress all output except errors.")] = False,
-    version: Annotated[bool, typer.Option("--version", help="Show version and exit.", callback=_version_callback, is_eager=True)] = False,
+    quiet: Annotated[
+        bool, typer.Option("--quiet", "-q", help="Suppress all output except errors.")
+    ] = False,
+    version: Annotated[
+        bool,
+        typer.Option(
+            "--version", help="Show version and exit.", callback=_version_callback, is_eager=True
+        ),
+    ] = False,
 ) -> None:
     """Global options applied before every command."""
     if quiet:
@@ -80,6 +88,7 @@ def main_callback(
 # Smart metric instantiation
 # ---------------------------------------------------------------------------
 
+
 def _needs_param(metric_cls: type[BaseMetric], param_name: str) -> bool:
     """Check whether a metric class __init__ accepts *param_name*."""
     sig = inspect.signature(metric_cls.__init__)
@@ -93,7 +102,7 @@ def _instantiate_metrics(
 ) -> list[BaseMetric]:
     """Instantiate metrics by name, creating heavy clients only when needed."""
     MetricRegistry.discover_metrics()
-    embedding_client = None          # lazy — created on first use
+    embedding_client = None  # lazy — created on first use
     instances: list[BaseMetric] = []
 
     for name in metric_names:
@@ -105,8 +114,10 @@ def _instantiate_metrics(
                 metric_cls = cls
                 break
         if metric_cls is None:
-            console.print(f"[bold red]Unknown metric '{name}'.[/bold red]  "
-                          f"Run [bold]rag-eval metrics[/bold] to list available metrics.")
+            console.print(
+                f"[bold red]Unknown metric '{name}'.[/bold red]  "
+                f"Run [bold]rag-eval metrics[/bold] to list available metrics."
+            )
             raise typer.Exit(1)
 
         # Build kwargs dynamically based on what the class actually accepts
@@ -116,6 +127,7 @@ def _instantiate_metrics(
         if _needs_param(metric_cls, "embed_client"):
             if embedding_client is None:
                 from rag_eval.utils.embeddings import EmbeddingClient
+
                 console.print("[dim]Loading embedding model (first use)...[/dim]")
                 embedding_client = EmbeddingClient(config=eval_config.embedding)
             kwargs["embed_client"] = embedding_client
@@ -133,16 +145,44 @@ def _instantiate_metrics(
 # Commands
 # ---------------------------------------------------------------------------
 
+
 @app.command()
 def evaluate(
-    dataset: Annotated[Path, typer.Option("--dataset", "-d", help="Path to the dataset JSON/CSV file.", exists=True)],
-    config: Annotated[Optional[Path], typer.Option("--config", "-c", help="Path to YAML configuration file.", exists=True)] = None,
-    output: Annotated[Path, typer.Option("--output", "-o", help="Output directory for reports.")] = Path("output"),
-    metrics: Annotated[str, typer.Option("--metrics", "-m", help="Comma-separated metric names (e.g. faithfulness,token_f1).")] = "",
-    format: Annotated[str, typer.Option("--format", "-f", help="Comma-separated output formats: json, html, csv, console. Default: all.")] = "json,html,csv,console",
-    provider: Annotated[Optional[str], typer.Option("--provider", "-p", help="LLM provider override (openai, ollama, vllm, ...).")] = None,
-    max_concurrency: Annotated[int, typer.Option("--max-concurrency", help="Maximum concurrent evaluations.")] = 5,
-    dry_run: Annotated[bool, typer.Option("--dry-run", help="Validate config and dataset without running.")] = False,
+    dataset: Annotated[
+        Path,
+        typer.Option("--dataset", "-d", help="Path to the dataset JSON/CSV file.", exists=True),
+    ],
+    config: Annotated[
+        Path | None,
+        typer.Option("--config", "-c", help="Path to YAML configuration file.", exists=True),
+    ] = None,
+    output: Annotated[
+        Path, typer.Option("--output", "-o", help="Output directory for reports.")
+    ] = Path("output"),
+    metrics: Annotated[
+        str,
+        typer.Option(
+            "--metrics", "-m", help="Comma-separated metric names (e.g. faithfulness,token_f1)."
+        ),
+    ] = "",
+    format: Annotated[
+        str,
+        typer.Option(
+            "--format",
+            "-f",
+            help="Comma-separated output formats: json, html, csv, console. Default: all.",
+        ),
+    ] = "json,html,csv,console",
+    provider: Annotated[
+        str | None,
+        typer.Option("--provider", "-p", help="LLM provider override (openai, ollama, vllm, ...)."),
+    ] = None,
+    max_concurrency: Annotated[
+        int, typer.Option("--max-concurrency", help="Maximum concurrent evaluations.")
+    ] = 5,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Validate config and dataset without running.")
+    ] = False,
 ) -> None:
     """Run evaluation on a dataset using specified metrics."""
     # 1. Load configuration ------------------------------------------------
@@ -163,7 +203,9 @@ def evaluate(
     valid_formats = {"json", "html", "csv", "console"}
     invalid = formats - valid_formats
     if invalid:
-        console.print(f"[bold red]Unknown format(s): {', '.join(invalid)}.[/bold red]  Valid: {', '.join(valid_formats)}")
+        console.print(
+            f"[bold red]Unknown format(s): {', '.join(invalid)}.[/bold red]  Valid: {', '.join(valid_formats)}"
+        )
         raise typer.Exit(1)
 
     # 2. Load dataset ------------------------------------------------------
@@ -214,38 +256,97 @@ def evaluate(
 
 @app.command()
 def generate(
-    documents: Annotated[Path, typer.Option("--documents", "-d", help="Path to source document text file.", exists=True)],
-    output: Annotated[Path, typer.Option("--output", "-o", help="Output JSON file for synthetic dataset.")] = Path("synthetic_dataset.json"),
-    num_samples: Annotated[int, typer.Option("--num-samples", "-n", help="Number of questions to generate per chunk.")] = 1,
-    question_types: Annotated[str, typer.Option("--question-types", "-q", help="Comma-separated types: factual, multi-hop, reasoning, comparative.")] = "factual",
-    difficulty: Annotated[str, typer.Option("--difficulty", help="Difficulty level: easy, medium, hard.")] = "medium",
+    documents: Annotated[
+        Path,
+        typer.Option("--documents", "-d", help="Path to source document text file.", exists=True),
+    ],
+    output: Annotated[
+        Path, typer.Option("--output", "-o", help="Output JSON file for synthetic dataset.")
+    ] = Path("synthetic_dataset.json"),
+    num_samples: Annotated[
+        int, typer.Option("--num-samples", "-n", help="Number of questions to generate per chunk.")
+    ] = 1,
+    question_types: Annotated[
+        str,
+        typer.Option(
+            "--question-types",
+            "-q",
+            help="Comma-separated types: factual, multi-hop, reasoning, comparative.",
+        ),
+    ] = "factual",
+    difficulty: Annotated[
+        str, typer.Option("--difficulty", help="Difficulty level: easy, medium, hard.")
+    ] = "medium",
+    provider: Annotated[
+        str, typer.Option("--provider", "-p", help="LLM provider (e.g. ollama, openai).")
+    ] = "ollama",
+    model: Annotated[
+        str, typer.Option("--model", "-m", help="LLM model to use.")
+    ] = "qwen2.5:7b",
+    max_chunks: Annotated[
+        int, typer.Option("--max-chunks", help="Maximum number of chunks to process (0 for unlimited).")
+    ] = 10,
+    max_concurrency: Annotated[
+        int, typer.Option("--max-concurrency", help="Maximum concurrent LLM requests.")
+    ] = 3,
 ) -> None:
     """Generate a synthetic QA dataset from source documents."""
-    text = documents.read_text(encoding="utf-8")
+    if documents.suffix.lower() == ".pdf":
+        console.print("[bold red]Error:[/bold red] The generate command currently expects a raw text file (.txt), not a PDF. Please extract the text from your PDF into a .txt file first.")
+        raise typer.Exit(1)
+        
+    try:
+        text = documents.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        console.print("[bold red]Error:[/bold red] Could not read the file as UTF-8 text. Make sure you are passing a plain text file (.txt).")
+        raise typer.Exit(1)
+        
     q_types = [t.strip() for t in question_types.split(",")]
 
-    gen = SyntheticDataGenerator()
-    console.print("[bold blue]Generating synthetic dataset (this may take a while)...[/bold blue]")
+    config = LLMConfig(provider=provider, model=model)
+    llm_client = LLMClient(config=config)
+    gen = SyntheticDataGenerator(llm_client=llm_client)
+    console.print(f"[bold blue]Generating synthetic dataset using {provider} ({model})...[/bold blue]")
 
-    samples = asyncio.run(gen.generate_qa_pairs(
-        text=text,
-        num_questions_per_chunk=num_samples,
-        question_types=q_types,
-        difficulty=difficulty,
-    ))
+    samples = asyncio.run(
+        gen.generate_qa_pairs(
+            text=text,
+            num_questions_per_chunk=num_samples,
+            question_types=q_types,
+            difficulty=difficulty,
+            max_chunks=max_chunks if max_chunks > 0 else None,
+            max_concurrency=max_concurrency,
+        )
+    )
 
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w") as f:
         json.dump([s.model_dump() for s in samples], f, indent=2)
 
-    console.print(f"[bold green]✓ Generated {len(samples)} synthetic samples → {output}[/bold green]")
+    console.print(
+        f"[bold green]✓ Generated {len(samples)} synthetic samples → {output}[/bold green]"
+    )
 
 
 @app.command()
 def report(
-    input_file: Annotated[Path, typer.Option("--input", "-i", help="Path to a previously generated report.json.", exists=True)],
-    output_dir: Annotated[Path, typer.Option("--output-dir", "-o", help="Output directory for regenerated reports.")] = Path("output_regenerated"),
-    format: Annotated[str, typer.Option("--format", "-f", help="Comma-separated output formats: json, html, csv, console. Default: all.")] = "html,csv,console",
+    input_file: Annotated[
+        Path,
+        typer.Option(
+            "--input", "-i", help="Path to a previously generated report.json.", exists=True
+        ),
+    ],
+    output_dir: Annotated[
+        Path, typer.Option("--output-dir", "-o", help="Output directory for regenerated reports.")
+    ] = Path("output_regenerated"),
+    format: Annotated[
+        str,
+        typer.Option(
+            "--format",
+            "-f",
+            help="Comma-separated output formats: json, html, csv, console. Default: all.",
+        ),
+    ] = "html,csv,console",
 ) -> None:
     """Regenerate HTML, CSV, and console reports from an existing JSON report."""
     console.print(f"[dim]Loading report from {input_file}[/dim]")
@@ -253,7 +354,9 @@ def report(
         data = json.load(f)
 
     if "report" not in data:
-        console.print("[bold red]Invalid report format. Expected a top-level 'report' key.[/bold red]")
+        console.print(
+            "[bold red]Invalid report format. Expected a top-level 'report' key.[/bold red]"
+        )
         raise typer.Exit(1)
 
     formats = {f.strip().lower() for f in format.split(",")}

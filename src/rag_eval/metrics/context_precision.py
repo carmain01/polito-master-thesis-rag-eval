@@ -11,6 +11,7 @@ from rag_eval.utils.llm import LLMClient
 
 PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "prompts")
 
+
 class ContextPrecision(BaseMetric):
     """Evaluates whether the retrieved context chunks are relevant to the question."""
 
@@ -30,8 +31,7 @@ class ContextPrecision(BaseMetric):
         contexts_str = "\n".join(f"[{i}] {c}" for i, c in enumerate(sample.contexts))
 
         prompt = self.prompt_template.safe_substitute(
-            question=sample.question,
-            contexts=contexts_str
+            question=sample.question, contexts=contexts_str
         )
 
         try:
@@ -42,12 +42,12 @@ class ContextPrecision(BaseMetric):
                 metric_name=self.name,
                 score=score,
                 reason=reason,
-                metadata={"evaluations": result_json.get("evaluations", [])}
+                metadata={"evaluations": result_json.get("evaluations", [])},
             )
         except Exception as e:
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
                 reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )

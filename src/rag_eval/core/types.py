@@ -10,13 +10,13 @@ from pydantic import BaseModel, Field
 class TestSample(BaseModel):
     """A single evaluation sample."""
 
-    __test__ = False #per evitare warning nei test
+    __test__ = False  # per evitare warning nei test
 
     question: str = Field(..., description="The user query / question.")
     answer: str = Field(default="", description="The generated answer from the RAG system.")
     ground_truth: str = Field(default="", description="The reference / expected answer.")
     contexts: list[str] = Field(default_factory=list, description="Retrieved context chunks.")
-    metadata: dict = Field(default_factory=dict, description="Arbitrary metadata.")
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Arbitrary metadata.")
 
 
 class EvalResult(BaseModel):
@@ -25,15 +25,19 @@ class EvalResult(BaseModel):
     metric_name: str
     score: float = Field(..., ge=0.0, le=1.0)
     reason: str = Field(default="", description="LLM-generated explanation for the score.")
-    metadata: dict = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class EvalReport(BaseModel):
     """Aggregated evaluation report across all samples and metrics."""
 
-    config: dict[str, Any] = Field(default_factory=dict, description="Configuration used for the evaluation.")
+    config: dict[str, Any] = Field(
+        default_factory=dict, description="Configuration used for the evaluation."
+    )
     results: list[EvalResult] = Field(default_factory=list)
-    summary: dict[str, Any] = Field(default_factory=dict, description="Metric name → avg score, plus cost aggregates.")
+    summary: dict[str, Any] = Field(
+        default_factory=dict, description="Metric name → avg score, plus cost aggregates."
+    )
 
     def add_result(self, result: EvalResult) -> None:
         self.results.append(result)
@@ -45,22 +49,23 @@ class EvalReport(BaseModel):
         scores: dict[str, list[float]] = defaultdict(list)
         for r in self.results:
             scores[r.metric_name].append(r.score)
-        
+
         # Preserve existing non-float stats (like tokens/cost) when recomputing
         for name, s in scores.items():
             self.summary[name] = sum(s) / len(s)
-            
+
         return self.summary
 
     @classmethod
     def load_from_json(cls, path: str) -> EvalReport:
         """Load an EvalReport from a JSON file (round-trip support)."""
         import json
+
         with open(path) as f:
             data = json.load(f)
-            
+
         # Handle the case where the JSON contains metadata wrapper
         if "report" in data:
             data = data["report"]
-            
+
         return cls.model_validate(data)

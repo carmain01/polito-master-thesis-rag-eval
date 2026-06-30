@@ -11,6 +11,7 @@ from rag_eval.utils.llm import LLMClient
 
 PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "prompts")
 
+
 class Faithfulness(BaseMetric):
     """Evaluates if claims in the generated answer are grounded in the provided contexts."""
 
@@ -31,10 +32,7 @@ class Faithfulness(BaseMetric):
         if not contexts_str:
             contexts_str = "No contexts provided."
 
-        prompt = self.prompt_template.safe_substitute(
-            contexts=contexts_str,
-            answer=sample.answer
-        )
+        prompt = self.prompt_template.safe_substitute(contexts=contexts_str, answer=sample.answer)
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
@@ -44,12 +42,12 @@ class Faithfulness(BaseMetric):
                 metric_name=self.name,
                 score=score,
                 reason=reason,
-                metadata={"claims": result_json.get("claims", [])}
+                metadata={"claims": result_json.get("claims", [])},
             )
         except Exception as e:
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
                 reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )

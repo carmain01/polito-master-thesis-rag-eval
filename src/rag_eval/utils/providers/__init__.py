@@ -46,9 +46,7 @@ def create_provider(config: LLMConfig) -> BaseLLMProvider:
         return VLLMProvider(config)
 
     supported = ["openai", "anthropic", "google", "ollama", "vllm"]
-    raise ValueError(
-        f"Unknown provider '{provider_name}'. Supported: {', '.join(supported)}"
-    )
+    raise ValueError(f"Unknown provider '{provider_name}'. Supported: {', '.join(supported)}")
 
 
 __all__ = ["create_provider"]

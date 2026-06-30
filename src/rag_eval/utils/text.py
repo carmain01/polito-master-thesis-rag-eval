@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from typing import Any
 
 
 def count_tokens(text: str, model: str = "gpt-4o") -> int:
@@ -19,8 +20,16 @@ def count_tokens(text: str, model: str = "gpt-4o") -> int:
         Estimated number of tokens.
     """
     # OpenAI models: use tiktoken for exact counts
-    openai_models = {"gpt-4o", "gpt-4o-mini", "gpt-4.1", "gpt-4.1-mini", "gpt-4.1-nano",
-                     "o3", "o3-mini", "o4-mini"}
+    openai_models = {
+        "gpt-4o",
+        "gpt-4o-mini",
+        "gpt-4.1",
+        "gpt-4.1-mini",
+        "gpt-4.1-nano",
+        "o3",
+        "o3-mini",
+        "o4-mini",
+    }
     if model in openai_models or model.startswith("gpt-"):
         try:
             import tiktoken
@@ -105,7 +114,7 @@ def normalize_text(text: str) -> str:
     return text
 
 
-def extract_json_from_text(text: str) -> dict:
+def extract_json_from_text(text: str) -> dict[str, Any]:
     """Extract a JSON object from text that may contain surrounding content.
 
     Useful for parsing LLM responses that include JSON within explanation text.
@@ -123,8 +132,9 @@ def extract_json_from_text(text: str) -> dict:
 
     # Try parsing the entire text first
     text = text.strip()
+    from typing import cast
     try:
-        return json.loads(text)
+        return cast(dict[str, Any], json.loads(text))
     except json.JSONDecodeError:
         pass
 
@@ -143,7 +153,8 @@ def extract_json_from_text(text: str) -> dict:
             depth -= 1
             if depth == 0:
                 try:
-                    return json.loads(text[start : i + 1])
+                    from typing import cast
+                    return cast(dict[str, Any], json.loads(text[start : i + 1]))
                 except json.JSONDecodeError:
                     break
 

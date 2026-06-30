@@ -11,6 +11,7 @@ from rag_eval.utils.llm import LLMClient
 
 PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "prompts")
 
+
 class ContextRecall(BaseMetric):
     """Evaluates if the retrieved contexts contain all information from the ground truth."""
 
@@ -33,8 +34,7 @@ class ContextRecall(BaseMetric):
         contexts_str = "\n".join(f"[{i}] {c}" for i, c in enumerate(sample.contexts))
 
         prompt = self.prompt_template.safe_substitute(
-            ground_truth=sample.ground_truth,
-            contexts=contexts_str
+            ground_truth=sample.ground_truth, contexts=contexts_str
         )
 
         try:
@@ -45,12 +45,12 @@ class ContextRecall(BaseMetric):
                 metric_name=self.name,
                 score=score,
                 reason=reason,
-                metadata={"statements": result_json.get("statements", [])}
+                metadata={"statements": result_json.get("statements", [])},
             )
         except Exception as e:
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
                 reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )

@@ -21,7 +21,9 @@ class SemanticSimilarity(BaseMetric):
 
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
-            return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
+            return EvalResult(
+                metric_name=self.name, score=0.0, reason="Missing answer or ground truth."
+            )
 
         try:
             # Offload CPU-intensive embedding to a thread to avoid blocking the event loop
@@ -37,11 +39,7 @@ class SemanticSimilarity(BaseMetric):
             return EvalResult(
                 metric_name=self.name,
                 score=sim,
-                reason="Computed cosine similarity between embeddings."
+                reason="Computed cosine similarity between embeddings.",
             )
         except Exception as e:
-            return EvalResult(
-                metric_name=self.name,
-                score=0.0,
-                reason=f"Failed to embed: {e}"
-            )
+            return EvalResult(metric_name=self.name, score=0.0, reason=f"Failed to embed: {e}")

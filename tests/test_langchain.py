@@ -1,7 +1,8 @@
 """Tests for the LangChain integration."""
 
-import pytest
 from typing import Any
+
+import pytest
 
 try:
     from langchain_core.documents import Document
@@ -10,6 +11,7 @@ try:
     from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 
     from rag_eval.integrations.langchain import RagEvalCallbackHandler
+
     HAS_LANGCHAIN = True
 except ImportError:
     HAS_LANGCHAIN = False
@@ -20,6 +22,7 @@ pytestmark = pytest.mark.skipif(not HAS_LANGCHAIN, reason="langchain-core not in
 @pytest.fixture
 def mock_chain():
     """Create a mock LCEL chain for testing."""
+
     def mock_retrieve(query: str) -> list[Document]:
         return [
             Document(page_content="doc1 content", metadata={"source": "test", "page": 1}),
@@ -34,10 +37,7 @@ def mock_chain():
     llm = RunnableLambda(mock_llm).with_config(run_name="llm")
 
     chain = (
-        {"context": retriever, "question": RunnablePassthrough()}
-        | prompt
-        | llm
-        | StrOutputParser()
+        {"context": retriever, "question": RunnablePassthrough()} | prompt | llm | StrOutputParser()
     )
     return chain
 

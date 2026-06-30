@@ -47,12 +47,13 @@ def load_dataset(
         with open(path) as f:
             data = json.load(f)
             if isinstance(data, dict) and "data" in data:
-                data = data["data"] # some json formats wrap in data array
+                data = data["data"]  # some json formats wrap in data array
             for item in data:
                 item = _apply_mapping(item, column_mapping)
                 samples.append(TestSample(**item))
     elif format == "csv":
         import pandas as pd
+
         df = pd.read_csv(path)
         for _, row in df.iterrows():
             data = row.to_dict()
@@ -66,8 +67,9 @@ def load_dataset(
             samples.append(TestSample(**data))
     elif format == "hf":
         from datasets import load_dataset as hf_load_dataset
+
         # path is treated as HF dataset name
-        dataset = hf_load_dataset(path_str, split="train") # default to train split
+        dataset = hf_load_dataset(path_str, split="train")  # default to train split
         for item in dataset:
             item = _apply_mapping(item, column_mapping)
             samples.append(TestSample(**item))
@@ -77,6 +79,7 @@ def load_dataset(
     validate_dataset(samples)
     return samples
 
+
 def _apply_mapping(data: dict[str, Any], mapping: dict[str, str]) -> dict[str, Any]:
     if not mapping:
         return data
@@ -85,6 +88,7 @@ def _apply_mapping(data: dict[str, Any], mapping: dict[str, str]) -> dict[str, A
         if src_col in result:
             result[dest_col] = result.pop(src_col)
     return result
+
 
 def validate_dataset(samples: list[TestSample]) -> None:
     """Validate the loaded dataset and log warnings for missing optional fields."""
@@ -100,11 +104,18 @@ def validate_dataset(samples: list[TestSample]) -> None:
 
     total = len(samples)
     if missing_answers > 0:
-        logging.warning(f"Dataset validation: {missing_answers}/{total} samples are missing 'answer'.")
+        logging.warning(
+            f"Dataset validation: {missing_answers}/{total} samples are missing 'answer'."
+        )
     if missing_contexts > 0:
-        logging.warning(f"Dataset validation: {missing_contexts}/{total} samples are missing 'contexts'.")
+        logging.warning(
+            f"Dataset validation: {missing_contexts}/{total} samples are missing 'contexts'."
+        )
     if missing_gt > 0:
-        logging.warning(f"Dataset validation: {missing_gt}/{total} samples are missing 'ground_truth'.")
+        logging.warning(
+            f"Dataset validation: {missing_gt}/{total} samples are missing 'ground_truth'."
+        )
+
 
 def dataset_statistics(samples: list[TestSample]) -> dict[str, Any]:
     """Compute basic statistics for a dataset."""
@@ -126,5 +137,5 @@ def dataset_statistics(samples: list[TestSample]) -> dict[str, Any]:
         "avg_contexts_per_sample": avg_contexts_count / len(samples),
         "avg_context_length_chars": avg_context_len / total_contexts if total_contexts > 0 else 0,
         "missing_answers": sum(1 for s in samples if not s.answer),
-        "missing_ground_truth": sum(1 for s in samples if not s.ground_truth)
+        "missing_ground_truth": sum(1 for s in samples if not s.ground_truth),
     }

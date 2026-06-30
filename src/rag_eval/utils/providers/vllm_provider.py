@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import time
+from typing import Any
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
@@ -45,7 +46,7 @@ class VLLMProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> LLMResponse:
         """Send a chat completion request to the vLLM server.
 
@@ -93,8 +94,8 @@ class VLLMProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Send a chat completion request with JSON output.
 
         Uses the ``response_format`` parameter (OpenAI-compatible).
@@ -134,7 +135,8 @@ class VLLMProvider(BaseLLMProvider):
             cost_estimate=0.0,
         )
 
-        return json.loads(text)
+        from typing import cast
+        return cast(dict[str, Any], json.loads(text))
 
     async def close(self) -> None:
         """Close the underlying HTTP client."""

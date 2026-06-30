@@ -16,6 +16,7 @@ from rag_eval.utils.embeddings import (
 # Cosine similarity tests (pure math, no model needed)
 # ---------------------------------------------------------------------------
 
+
 class TestCosineSimilarity:
     """Test cosine similarity utility function."""
 
@@ -70,6 +71,7 @@ class TestPairwiseCosineSimilarity:
 # ---------------------------------------------------------------------------
 # EmbeddingClient tests (requires sentence-transformers model download)
 # ---------------------------------------------------------------------------
+
 
 class TestEmbeddingClient:
     """Test the EmbeddingClient with Sentence Transformers.

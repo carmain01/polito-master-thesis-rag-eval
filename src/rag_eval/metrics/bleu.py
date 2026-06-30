@@ -29,15 +29,17 @@ class BLEU(BaseMetric):
 
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
-            return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
+            return EvalResult(
+                metric_name=self.name, score=0.0, reason="Missing answer or ground truth."
+            )
 
         try:
             # Tokenize simply
             ref_tokens = nltk.word_tokenize(sample.ground_truth.lower())
             hyp_tokens = nltk.word_tokenize(sample.answer.lower())
         except LookupError:
-            nltk.download('punkt')
-            nltk.download('punkt_tab')
+            nltk.download("punkt")
+            nltk.download("punkt_tab")
             ref_tokens = nltk.word_tokenize(sample.ground_truth.lower())
             hyp_tokens = nltk.word_tokenize(sample.answer.lower())
 
@@ -45,10 +47,12 @@ class BLEU(BaseMetric):
             return EvalResult(metric_name=self.name, score=0.0, reason="Empty after tokenization.")
 
         smoothing = SmoothingFunction().method1
-        bleu_score = sentence_bleu([ref_tokens], hyp_tokens, weights=self.weights, smoothing_function=smoothing)
+        bleu_score = sentence_bleu(
+            [ref_tokens], hyp_tokens, weights=self.weights, smoothing_function=smoothing
+        )
 
         return EvalResult(
             metric_name=self.name,
             score=float(bleu_score),
-            reason=f"Computed BLEU-{self.variant} using nltk"
+            reason=f"Computed BLEU-{self.variant} using nltk",
         )

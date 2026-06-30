@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -18,8 +18,9 @@ def sample():
         question="What is the capital of France?",
         answer="The capital of France is Paris.",
         ground_truth="The capital of France is Paris.",
-        contexts=[]
+        contexts=[],
     )
+
 
 @pytest.fixture
 def sample_mismatch():
@@ -27,8 +28,9 @@ def sample_mismatch():
         question="What is the capital of France?",
         answer="London is the capital of UK.",
         ground_truth="The capital of France is Paris.",
-        contexts=[]
+        contexts=[],
     )
+
 
 @pytest.mark.asyncio
 async def test_bleu(sample, sample_mismatch):
@@ -40,6 +42,7 @@ async def test_bleu(sample, sample_mismatch):
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score < 1.0
 
+
 @pytest.mark.asyncio
 async def test_rouge(sample, sample_mismatch):
     metric = ROUGE(variant="rougeL")
@@ -49,6 +52,7 @@ async def test_rouge(sample, sample_mismatch):
 
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score < 1.0
+
 
 @pytest.mark.asyncio
 async def test_f1(sample, sample_mismatch):
@@ -60,6 +64,7 @@ async def test_f1(sample, sample_mismatch):
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score < 1.0
 
+
 @pytest.mark.asyncio
 async def test_exact_match(sample, sample_mismatch):
     metric = ExactMatch()
@@ -70,10 +75,13 @@ async def test_exact_match(sample, sample_mismatch):
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score == 0.0
 
+
 @pytest.mark.asyncio
 async def test_semantic_similarity(sample, sample_mismatch):
     mock_embed = MagicMock(spec=EmbeddingClient)
-    mock_embed.embed_single = MagicMock(side_effect=[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+    mock_embed.embed_single = MagicMock(
+        side_effect=[[1.0, 0.0], [1.0, 0.0], [1.0, 0.0], [0.0, 1.0]]
+    )
 
     metric = SemanticSimilarity(mock_embed)
     res_match = await metric.score(sample)
@@ -82,6 +90,7 @@ async def test_semantic_similarity(sample, sample_mismatch):
 
     res_mis = await metric.score(sample_mismatch)
     assert res_mis.score == 0.0
+
 
 @pytest.mark.asyncio
 async def test_bert_score(sample, sample_mismatch):

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import json
 import time
+from typing import Any, cast
+
+from anthropic.types import Message
 
 from rag_eval.core.config import LLMConfig
 from rag_eval.utils.provider import BaseLLMProvider, LLMResponse
@@ -35,8 +38,8 @@ class AnthropicProvider(BaseLLMProvider):
 
         # Apply configurable retry from config.max_retries
         _retry = self._make_retry()
-        self.complete = _retry(self.complete)
-        self.complete_json = _retry(self.complete_json)
+        self.complete = _retry(self.complete)  # type: ignore[method-assign]
+        self.complete_json = _retry(self.complete_json)  # type: ignore[method-assign]
 
     @property
     def provider_name(self) -> str:
@@ -46,25 +49,26 @@ class AnthropicProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> LLMResponse:
         """Send a message to the Anthropic API."""
-        messages = [{"role": "user", "content": prompt}]
+        messages: list[dict[str, Any]] = [{"role": "user", "content": prompt}]
 
-        create_kwargs: dict[str, object] = {
+        create_kwargs: dict[str, Any] = {
             "model": self.config.model,
             "messages": messages,
-            "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
-            "temperature": kwargs.get("temperature", self.config.temperature),
+            "max_tokens": cast(int, kwargs.get("max_tokens", self.config.max_tokens)),
+            "temperature": cast(float, kwargs.get("temperature", self.config.temperature)),
         }
         if system:
             create_kwargs["system"] = system
 
         start = time.perf_counter()
-        response = await self._client.messages.create(**create_kwargs)
+        response = cast(Message, await self._client.messages.create(**create_kwargs))
         latency_ms = (time.perf_counter() - start) * 1000
 
-        text = response.content[0].text if response.content else ""
+        content = response.content
+        text = getattr(content[0], "text", "") if content and isinstance(content, list) else ""
         input_tokens = response.usage.input_tokens
         output_tokens = response.usage.output_tokens
 
@@ -82,13 +86,15 @@ class AnthropicProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Send a message and parse the response as JSON.
 
         Anthropic doesn't have a native JSON mode, so we instruct the model
         to return JSON and parse the response text.
         """
+        from typing import cast
+        
         json_system = system or "You are a helpful assistant."
         json_system += (
             "\nYou MUST respond with valid JSON only. "
@@ -96,24 +102,25 @@ class AnthropicProvider(BaseLLMProvider):
         )
 
         # Prefill the assistant response with "{" to encourage JSON output
-        messages = [
+        messages: list[dict[str, Any]] = [
             {"role": "user", "content": prompt},
             {"role": "assistant", "content": "{"},
         ]
 
-        create_kwargs: dict[str, object] = {
+        create_kwargs: dict[str, Any] = {
             "model": self.config.model,
             "messages": messages,
-            "max_tokens": kwargs.get("max_tokens", self.config.max_tokens),
-            "temperature": kwargs.get("temperature", self.config.temperature),
+            "max_tokens": cast(int, kwargs.get("max_tokens", self.config.max_tokens)),
+            "temperature": cast(float, kwargs.get("temperature", self.config.temperature)),
             "system": json_system,
         }
 
         start = time.perf_counter()
-        response = await self._client.messages.create(**create_kwargs)
+        response = cast(Message, await self._client.messages.create(**create_kwargs))
         latency_ms = (time.perf_counter() - start) * 1000
 
-        raw_text = response.content[0].text if response.content else ""
+        content = response.content
+        raw_text = getattr(content[0], "text", "") if content and isinstance(content, list) else ""
         # Prepend the "{" we used as prefill
         text = "{" + raw_text
         input_tokens = response.usage.input_tokens
@@ -129,4 +136,4 @@ class AnthropicProvider(BaseLLMProvider):
             cost_estimate=self.estimate_cost(input_tokens, output_tokens),
         )
 
-        return json.loads(text)
+        return cast(dict[str, Any], json.loads(text))

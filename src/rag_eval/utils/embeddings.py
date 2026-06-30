@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
+from typing import Any
 
 from rag_eval.core.config import EmbeddingConfig
 
@@ -27,7 +28,7 @@ class EmbeddingClient:
         self.config = config or EmbeddingConfig()
         self._model = None
 
-    def _load_model(self):
+    def _load_model(self) -> "Any":
         """Lazy-load the Sentence Transformer model (avoids slow import at startup)."""
         if self._model is None:
             from sentence_transformers import SentenceTransformer
@@ -76,8 +77,8 @@ class EmbeddingClient:
         model = self._load_model()
         # Use get_embedding_dimension (renamed from get_sentence_embedding_dimension)
         if hasattr(model, "get_embedding_dimension"):
-            return model.get_embedding_dimension()
-        return model.get_sentence_embedding_dimension()
+            return int(model.get_embedding_dimension())
+        return int(model.get_sentence_embedding_dimension())
 
     def __repr__(self) -> str:
         return f"EmbeddingClient(model={self.config.model!r})"

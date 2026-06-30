@@ -25,7 +25,7 @@ class BERTScore(BaseMetric):
     def name(self) -> str:
         return "bert_score"
 
-    def _compute_bert_score(self, answer: str, ground_truth: str) -> tuple:
+    def _compute_bert_score(self, answer: str, ground_truth: str) -> tuple[float, float, float]:
         """Run BERTScore synchronously (called via asyncio.to_thread)."""
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -36,26 +36,24 @@ class BERTScore(BaseMetric):
                 lang="en",
                 verbose=False,
             )
-        return P, R, F1
+        return float(P), float(R), float(F1.item())
 
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
-            return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
+            return EvalResult(
+                metric_name=self.name, score=0.0, reason="Missing answer or ground truth."
+            )
 
         # Offload CPU-intensive BERTScore computation to a thread to avoid blocking the event loop
         P, R, F1 = await asyncio.to_thread(
             self._compute_bert_score, sample.answer, sample.ground_truth
         )
 
-        f1_score = F1.item()
+        f1_score = F1
 
         return EvalResult(
             metric_name=self.name,
             score=f1_score,
             reason=f"Computed BERTScore using {self.model_type}",
-            metadata={
-                "precision": P.item(),
-                "recall": R.item(),
-                "f1": f1_score
-            }
+            metadata={"precision": P, "recall": R, "f1": f1_score},
         )

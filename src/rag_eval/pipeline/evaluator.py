@@ -92,7 +92,6 @@ class Evaluator:
                         coroutines.append(self._evaluate_sample_metric(metric, sample, sem))
 
                 # Run the batch concurrently
-                results = []
                 for coro in asyncio.as_completed(coroutines):
                     res = await coro
                     if res is not None:
@@ -112,7 +111,11 @@ class Evaluator:
         total_cost = 0.0
 
         # Get unique LLM clients from metrics
-        llm_clients = {metric.llm for metric in self.metrics if hasattr(metric, "llm") and metric.llm is not None}
+        llm_clients = {
+            metric.llm
+            for metric in self.metrics
+            if hasattr(metric, "llm") and metric.llm is not None
+        }
 
         if llm_clients:
             # Prefer global usage tracker from LLM clients (avoids missing JSON mode tokens)

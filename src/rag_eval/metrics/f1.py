@@ -12,7 +12,7 @@ from rag_eval.metrics.base import BaseMetric
 def normalize_text(text: str) -> str:
     """Lowercases, removes punctuation and standardizes whitespace."""
     text = text.lower()
-    text = text.translate(str.maketrans('', '', string.punctuation))
+    text = text.translate(str.maketrans("", "", string.punctuation))
     return " ".join(text.split())
 
 
@@ -25,7 +25,9 @@ class TokenF1(BaseMetric):
 
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
-            return EvalResult(metric_name=self.name, score=0.0, reason="Missing answer or ground truth.")
+            return EvalResult(
+                metric_name=self.name, score=0.0, reason="Missing answer or ground truth."
+            )
 
         ref_tokens = normalize_text(sample.ground_truth).split()
         hyp_tokens = normalize_text(sample.answer).split()
@@ -47,5 +49,5 @@ class TokenF1(BaseMetric):
             metric_name=self.name,
             score=f1,
             reason="Computed token-level F1",
-            metadata={"precision": precision, "recall": recall}
+            metadata={"precision": precision, "recall": recall},
         )

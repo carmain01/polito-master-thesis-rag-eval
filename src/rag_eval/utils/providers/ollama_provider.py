@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import time
+from typing import Any
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter
@@ -94,8 +95,8 @@ class OllamaProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
-    ) -> dict:
+        **kwargs: "Any",
+    ) -> dict[str, Any]:
         """Send a chat request with JSON format output.
 
         Ollama supports a ``format`` parameter to enforce JSON output.
@@ -140,7 +141,8 @@ class OllamaProvider(BaseLLMProvider):
             cost_estimate=0.0,
         )
 
-        return json.loads(text)
+        from typing import cast
+        return cast(dict[str, Any], json.loads(text))
 
     async def close(self) -> None:
         """Close the underlying HTTP client."""

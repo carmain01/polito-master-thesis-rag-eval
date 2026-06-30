@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from typing import Any
 import time
 from pathlib import Path
 
@@ -107,7 +108,7 @@ class ResponseCache:
         self._hits = 0
         self._misses = 0
 
-    def stats(self) -> dict:
+    def stats(self) -> dict[str, Any]:
         """Return cache statistics.
 
         Returns:

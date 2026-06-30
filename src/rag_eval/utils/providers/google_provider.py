@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import time
+from typing import Any, cast
 
 from rag_eval.core.config import LLMConfig
 from rag_eval.utils.provider import BaseLLMProvider, LLMResponse
@@ -23,16 +24,15 @@ class GoogleProvider(BaseLLMProvider):
         api_key = config.get_api_key()
         if not api_key:
             raise ValueError(
-                "Google API key is required. "
-                "Set GOOGLE_API_KEY in .env or pass api_key in config."
+                "Google API key is required. Set GOOGLE_API_KEY in .env or pass api_key in config."
             )
 
         self._client = genai.Client(api_key=api_key)
 
         # Apply configurable retry from config.max_retries
         _retry = self._make_retry()
-        self.complete = _retry(self.complete)
-        self.complete_json = _retry(self.complete_json)
+        self.complete = _retry(self.complete)  # type: ignore[method-assign]
+        self.complete_json = _retry(self.complete_json)  # type: ignore[method-assign]
 
     @property
     def provider_name(self) -> str:
@@ -42,14 +42,14 @@ class GoogleProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> LLMResponse:
         """Send a request to the Gemini API."""
         from google.genai import types
 
         config = types.GenerateContentConfig(
-            temperature=kwargs.get("temperature", self.config.temperature),
-            max_output_tokens=kwargs.get("max_tokens", self.config.max_tokens),
+            temperature=float(cast(float, kwargs.get("temperature", self.config.temperature))),
+            max_output_tokens=int(cast(int, kwargs.get("max_tokens", self.config.max_tokens))),
         )
         if system:
             config.system_instruction = system
@@ -83,17 +83,18 @@ class GoogleProvider(BaseLLMProvider):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Send a request with JSON response format."""
+        from typing import Any, cast
         from google.genai import types
 
         json_system = system or "You are a helpful assistant."
         json_system += "\nAlways respond with valid JSON only."
 
         config = types.GenerateContentConfig(
-            temperature=kwargs.get("temperature", self.config.temperature),
-            max_output_tokens=kwargs.get("max_tokens", self.config.max_tokens),
+            temperature=float(cast(float, kwargs.get("temperature", self.config.temperature))),
+            max_output_tokens=int(cast(int, kwargs.get("max_tokens", self.config.max_tokens))),
             response_mime_type="application/json",
             system_instruction=json_system,
         )
@@ -123,4 +124,4 @@ class GoogleProvider(BaseLLMProvider):
             cost_estimate=self.estimate_cost(input_tokens, output_tokens),
         )
 
-        return json.loads(text)
+        return cast(dict[str, Any], json.loads(text))

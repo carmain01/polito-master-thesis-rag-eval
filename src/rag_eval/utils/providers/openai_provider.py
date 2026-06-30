@@ -44,8 +44,9 @@ class OpenAIProvider(BaseLLMProvider):
 
         # Apply configurable retry from config.max_retries
         _retry = self._make_retry()
-        self.complete = _retry(self.complete)
-        self.complete_json = _retry(self.complete_json)
+        self.complete = _retry(self.complete)  # type: ignore[method-assign]
+        self.complete_json = _retry(self.complete_json)  # type: ignore[method-assign]
+
 
     @property
     def provider_name(self) -> str:
@@ -92,7 +93,7 @@ class OpenAIProvider(BaseLLMProvider):
         prompt: str,
         system: str = "",
         **kwargs: Any,
-    ) -> dict:
+    ) -> dict[str, Any]:
         """Send a chat completion request with JSON response format."""
         messages: list[ChatCompletionMessageParam] = []
         json_system = system or "You are a helpful assistant."
@@ -126,4 +127,5 @@ class OpenAIProvider(BaseLLMProvider):
             cost_estimate=self.estimate_cost(input_tokens, output_tokens),
         )
 
-        return json.loads(text)
+        from typing import cast
+        return cast(dict[str, Any], json.loads(text))

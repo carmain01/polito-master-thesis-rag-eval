@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, List, Optional
 from collections import defaultdict
+from typing import Any
 
 try:
     from scipy import stats
+
     HAS_SCIPY = True
 except ImportError:
     HAS_SCIPY = False
@@ -19,21 +20,19 @@ class ConfigurationComparator:
     """Compares multiple evaluation reports to determine statistically significant differences."""
 
     def compare(
-        self, 
-        baseline_report: EvalReport, 
-        candidate_reports: Dict[str, EvalReport]
-    ) -> Dict[str, Any]:
+        self, baseline_report: EvalReport, candidate_reports: dict[str, EvalReport]
+    ) -> dict[str, Any]:
         """
         Compare candidate configurations against a baseline configuration.
-        
+
         Args:
             baseline_report: The baseline EvalReport.
             candidate_reports: A dictionary mapping config names to EvalReports.
-            
+
         Returns:
             A nested dictionary containing metric comparisons, deltas, and p-values.
         """
-        results: Dict[str, Any] = {}
+        results: dict[str, Any] = {}
 
         # Extract baseline scores per sample per metric
         # Assuming sample order is identical across reports for paired tests
@@ -59,11 +58,11 @@ class ConfigurationComparator:
                 b_mean = sum(b_scores) / min_len if min_len > 0 else 0.0
                 c_mean = sum(c_scores) / min_len if min_len > 0 else 0.0
                 delta = c_mean - b_mean
-                
+
                 # Compute statistical significance using paired t-test
-                p_value: Optional[float] = None
+                p_value: float | None = None
                 significant = False
-                
+
                 if HAS_SCIPY and min_len > 1:
                     # ttest_rel returns Ttest_relResult(statistic, pvalue)
                     t_stat, p_val = stats.ttest_rel(c_scores, b_scores)
@@ -71,7 +70,7 @@ class ConfigurationComparator:
                     # Handle NaN p-values (e.g. when all scores are identical)
                     if math.isnan(p_value):
                         p_value = 1.0
-                    
+
                     if p_value < 0.05:
                         significant = True
 
@@ -83,14 +82,14 @@ class ConfigurationComparator:
                     "significant_improvement": significant and delta > 0,
                     "significant_degradation": significant and delta < 0,
                 }
-            
+
             results[config_name] = config_results
 
         return results
 
-    def _group_scores_by_metric(self, report: EvalReport) -> Dict[str, List[float]]:
+    def _group_scores_by_metric(self, report: EvalReport) -> dict[str, list[float]]:
         """Groups sample scores by metric name."""
-        grouped: Dict[str, List[float]] = defaultdict(list)
+        grouped: dict[str, list[float]] = defaultdict(list)
         for res in report.results:
             grouped[res.metric_name].append(res.score)
         return dict(grouped)

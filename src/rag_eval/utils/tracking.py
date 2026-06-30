@@ -1,6 +1,7 @@
 """Usage tracking — monitor token consumption and costs across LLM calls."""
 
 from __future__ import annotations
+from typing import Any
 
 from collections import defaultdict
 
@@ -65,7 +66,7 @@ class UsageTracker:
         """Total number of LLM calls made."""
         return self._call_count
 
-    def summary(self) -> dict:
+    def summary(self) -> dict[str, Any]:
         """Return a summary of all usage.
 
         Returns:

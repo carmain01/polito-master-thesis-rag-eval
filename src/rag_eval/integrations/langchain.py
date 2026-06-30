@@ -58,10 +58,12 @@ class RagEvalCallbackHandler(BaseCallbackHandler):
         if root_id not in self._runs:
             return
         for doc in documents:
-            self._runs[root_id]["retrieved_documents"].append({
-                "page_content": doc.page_content,
-                "metadata": dict(doc.metadata) if doc.metadata else {},
-            })
+            self._runs[root_id]["retrieved_documents"].append(
+                {
+                    "page_content": doc.page_content,
+                    "metadata": dict(doc.metadata) if doc.metadata else {},
+                }
+            )
 
     # ------------------------------------------------------------------
     # LangChain callback hooks
@@ -187,16 +189,18 @@ class RagEvalCallbackHandler(BaseCallbackHandler):
                     seen_contents.add(doc["page_content"])
                     unique_docs.append(doc)
 
-            samples.append(TestSample(
-                question=data["question"],
-                answer=data["answer"],
-                contexts=[d["page_content"] for d in unique_docs],
-                metadata={
-                    "langchain_run_id": str(run_id),
-                    "retrieved_documents": unique_docs,
-                    **data["chain_metadata"],
-                },
-            ))
+            samples.append(
+                TestSample(
+                    question=data["question"],
+                    answer=data["answer"],
+                    contexts=[d["page_content"] for d in unique_docs],
+                    metadata={
+                        "langchain_run_id": str(run_id),
+                        "retrieved_documents": unique_docs,
+                        **data["chain_metadata"],
+                    },
+                )
+            )
         return samples
 
     def get_sample(self) -> TestSample | None:

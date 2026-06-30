@@ -14,6 +14,7 @@ from rag_eval.utils.providers import create_provider
 # Provider factory tests
 # ---------------------------------------------------------------------------
 
+
 class TestCreateProvider:
     """Test the provider factory function."""
 
@@ -55,6 +56,7 @@ class TestCreateProvider:
 # Cost estimation tests
 # ---------------------------------------------------------------------------
 
+
 class TestCostEstimation:
     """Test the base provider cost estimation."""
 
@@ -84,6 +86,7 @@ class TestCostEstimation:
 # OpenAI provider tests (mocked)
 # ---------------------------------------------------------------------------
 
+
 class TestOpenAIProvider:
     """Test OpenAI provider with mocked API calls."""
 
@@ -108,9 +111,7 @@ class TestOpenAIProvider:
         config = LLMConfig(provider="openai", model="gpt-4o-mini")
         provider = create_provider(config)
 
-        provider._client.chat.completions.create = AsyncMock(
-            return_value=mock_openai_response
-        )
+        provider._client.chat.completions.create = AsyncMock(return_value=mock_openai_response)
 
         result = await provider.complete("Hello, world!")
         assert isinstance(result, LLMResponse)
@@ -128,9 +129,7 @@ class TestOpenAIProvider:
         config = LLMConfig(provider="openai", model="gpt-4o-mini")
         provider = create_provider(config)
 
-        provider._client.chat.completions.create = AsyncMock(
-            return_value=mock_openai_response
-        )
+        provider._client.chat.completions.create = AsyncMock(return_value=mock_openai_response)
 
         result = await provider.complete_json("Rate this answer.")
         assert isinstance(result, dict)
@@ -146,6 +145,7 @@ class TestOpenAIProvider:
 # ---------------------------------------------------------------------------
 # Ollama provider tests (mocked)
 # ---------------------------------------------------------------------------
+
 
 class TestOllamaProvider:
     """Test Ollama provider with mocked HTTP calls."""
@@ -196,6 +196,7 @@ class TestOllamaProvider:
 # vLLM provider tests (mocked)
 # ---------------------------------------------------------------------------
 
+
 class TestVLLMProvider:
     """Test vLLM provider with mocked HTTP calls."""
 
@@ -224,6 +225,7 @@ class TestVLLMProvider:
 # ---------------------------------------------------------------------------
 # LLMResponse model tests
 # ---------------------------------------------------------------------------
+
 
 class TestLLMResponse:
     """Test the LLMResponse data model."""

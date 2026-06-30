@@ -36,7 +36,7 @@ def client_no_cache():
 def client_with_cache(tmp_path):
     """Create a client with caching enabled in a temp directory."""
     config = LLMConfig(provider="ollama", model="llama3.2")
-    cache_config = CacheConfig(directory=str(tmp_path / "cache"))
+    cache_config = CacheConfig(directory=str(tmp_path / "cache"), enabled=True)
     return LLMClient(config, cache_config=cache_config, enable_cache=True)
 
 
@@ -143,9 +143,7 @@ class TestLLMClientJSON:
             model="llama3.2",
             provider="ollama",
         )
-        client_no_cache._provider.complete_json = AsyncMock(
-            return_value={"score": 0.9}
-        )
+        client_no_cache._provider.complete_json = AsyncMock(return_value={"score": 0.9})
         client_no_cache._provider._last_response = json_response
 
         result = await client_no_cache.complete_json("Rate this.")

@@ -1,6 +1,7 @@
 import re
 
 import numpy as np
+from typing import Any
 
 _ABBREVIATIONS = {
     "dr",
@@ -50,7 +51,8 @@ _ABBREVIATIONS = {
 # Aggressive split: sentence-ending punctuation followed by whitespace + uppercase
 _SENT_SPLIT = re.compile(r'([.!?])(\s+)(?=[A-Z\d"\'\(\[])')
 
-def get_chunking_model():
+
+def get_chunking_model() -> "Any":
     from sentence_transformers import SentenceTransformer
 
     return SentenceTransformer("sentence-transformers/paraphrase-MiniLM-L6-v2")
@@ -68,6 +70,7 @@ def _tokenize_paragraph(para: str) -> list[str]:
             raw_sents.append(tokens[i])
             i += 1
     return raw_sents
+
 
 def _rejoin_abbreviations_and_decimals(raw_sents: list[str]) -> list[str]:
     merged: list[str] = []
@@ -112,7 +115,7 @@ def _split_sentences(text: str) -> list[str]:
 
 
 class ChunkingService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.semantic_model = get_chunking_model()
 
     def chunk_text(self, text: str, max_chunk_chars: int = 1500) -> list[str]:
@@ -155,7 +158,9 @@ class ChunkingService:
                 cleaned.append(s)
         return cleaned
 
-    def _compute_centroid_similarity(self, embeddings: np.ndarray, current_indices: list[int], target_embedding: np.ndarray) -> float:
+    def _compute_centroid_similarity(
+        self, embeddings: "np.ndarray[Any, Any]", current_indices: list[int], target_embedding: "np.ndarray[Any, Any]"
+    ) -> float:
         centroid = np.mean(embeddings[list(current_indices)], axis=0)
         centroid_norm = centroid / (np.linalg.norm(centroid) + 1e-10)
         return float(np.dot(centroid_norm, target_embedding))

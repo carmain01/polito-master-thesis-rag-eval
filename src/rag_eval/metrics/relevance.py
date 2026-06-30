@@ -11,6 +11,7 @@ from rag_eval.utils.llm import LLMClient
 
 PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "..", "prompts")
 
+
 class AnswerRelevance(BaseMetric):
     """Evaluates how well the answer directly addresses the user's question."""
 
@@ -28,8 +29,7 @@ class AnswerRelevance(BaseMetric):
             return EvalResult(metric_name=self.name, score=0.0, reason="No answer provided.")
 
         prompt = self.prompt_template.safe_substitute(
-            question=sample.question,
-            answer=sample.answer
+            question=sample.question, answer=sample.answer
         )
 
         try:
@@ -46,5 +46,5 @@ class AnswerRelevance(BaseMetric):
                 metric_name=self.name,
                 score=0.0,
                 reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)}
+                metadata={"error": str(e)},
             )

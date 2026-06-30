@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -18,9 +19,7 @@ class LLMResponse(BaseModel):
     model: str = Field(default="", description="Model identifier used.")
     provider: str = Field(default="", description="Provider name.")
     latency_ms: float = Field(default=0.0, ge=0.0, description="Request latency in milliseconds.")
-    cost_estimate: float = Field(
-        default=0.0, ge=0.0, description="Estimated cost in USD."
-    )
+    cost_estimate: float = Field(default=0.0, ge=0.0, description="Estimated cost in USD.")
 
 
 # Pricing per 1M tokens: (input_price, output_price) in USD.
@@ -64,7 +63,7 @@ class BaseLLMProvider(ABC):
         # Stores the last LLMResponse from complete_json(), used by LLMClient for usage tracking
         self._last_response: LLMResponse | None = None
 
-    def _make_retry(self):
+    def _make_retry(self) -> "Any":
         """Create a tenacity retry decorator based on config.max_retries."""
         from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
@@ -85,7 +84,7 @@ class BaseLLMProvider(ABC):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
+        **kwargs: Any,
     ) -> LLMResponse:
         """Send a prompt to the LLM and return a structured response.
 
@@ -101,8 +100,8 @@ class BaseLLMProvider(ABC):
         self,
         prompt: str,
         system: str = "",
-        **kwargs: object,
-    ) -> dict:
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """Send a prompt and parse the response as JSON.
 
         Uses JSON mode or function calling where supported.
