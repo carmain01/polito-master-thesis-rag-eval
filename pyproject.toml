@@ -36,7 +36,11 @@ dependencies = [
     # Utilities
     "python-dotenv>=1.0",
     "tenacity>=8.2",
+    "typer>=0.9",
 ]
+
+[project.scripts]
+rag-eval = "rag_eval.cli.main:app"
 
 [project.optional-dependencies]
 dev = [
@@ -45,6 +49,9 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.1",
     "mypy>=1.5",
+]
+langchain = [
+    "langchain-core>=0.1.0",
 ]
 docs = [
     "mkdocs>=1.5",

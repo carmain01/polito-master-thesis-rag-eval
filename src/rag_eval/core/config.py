@@ -80,7 +80,7 @@ class EmbeddingConfig(BaseModel):
 class CacheConfig(BaseModel):
     """Configuration for LLM response caching."""
 
-    enabled: bool = Field(default=True, description="Enable/disable response caching.")
+    enabled: bool = Field(default=False, description="Enable/disable response caching.")
     directory: str = Field(
         default=".cache/rag_eval",
         description="Cache directory path.",

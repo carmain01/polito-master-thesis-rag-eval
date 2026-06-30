@@ -35,8 +35,9 @@ class LLMClient:
 
         # Initialize cache
         self._cache: ResponseCache | None = None
-        if enable_cache:
-            self._cache = ResponseCache(cache_config or CacheConfig())
+        cache_conf = cache_config or CacheConfig()
+        if enable_cache and cache_conf.enabled:
+            self._cache = ResponseCache(cache_conf)
 
         logger.info(
             "LLMClient initialized: provider=%s, model=%s, cache=%s",

@@ -46,7 +46,7 @@ def main() -> None:
 
     # 4. Run evaluation
     evaluator = Evaluator(metrics=metrics)
-    report = evaluator.evaluate(samples)
+    report = evaluator.evaluate(samples, max_concurrency=1)
 
     # 5. Generate reports
     output_dir = Path("output")

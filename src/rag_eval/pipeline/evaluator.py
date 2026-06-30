@@ -5,10 +5,17 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, List
 
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
 
 from rag_eval.core.config import EvalConfig
 from rag_eval.core.types import EvalReport, EvalResult, TestSample
@@ -22,7 +29,7 @@ class Evaluator:
 
     def __init__(
         self,
-        metrics: list[BaseMetric],
+        metrics: Sequence[BaseMetric],
         config: EvalConfig | None = None,
         cache_dir: str = ".rag_eval_cache",
     ) -> None:
@@ -35,7 +42,7 @@ class Evaluator:
         """Save an intermediate checkpoint of the report."""
         checkpoint_path = self.cache_dir / f"checkpoint_batch_{batch_idx}.json"
         try:
-            # Pydantic v2 provides model_dump() for robust serialization. 
+            # Pydantic v2 provides model_dump() for robust serialization.
             # mode="json" ensures all types (like datetimes/UUIDs) are safely converted.
             data = report.model_dump(mode="json")
             with open(checkpoint_path, "w") as f:
@@ -56,8 +63,8 @@ class Evaluator:
                 return None
 
     async def evaluate_async(
-        self, 
-        samples: list[TestSample],
+        self,
+        samples: Sequence[TestSample],
         batch_size: int = 50,
         max_concurrency: int = 10,
     ) -> EvalReport:
@@ -78,7 +85,7 @@ class Evaluator:
             # Process in batches
             for i in range(0, len(samples), batch_size):
                 batch_samples = samples[i : i + batch_size]
-                
+
                 coroutines = []
                 for sample in batch_samples:
                     for metric in self.metrics:
@@ -106,7 +113,7 @@ class Evaluator:
 
         # Get unique LLM clients from metrics
         llm_clients = {metric.llm for metric in self.metrics if hasattr(metric, "llm") and metric.llm is not None}
-        
+
         if llm_clients:
             # Prefer global usage tracker from LLM clients (avoids missing JSON mode tokens)
             for llm in llm_clients:
@@ -126,8 +133,8 @@ class Evaluator:
         report.summary["total_estimated_cost"] = total_cost
 
     def evaluate(
-        self, 
-        samples: list[TestSample],
+        self,
+        samples: Sequence[TestSample],
         batch_size: int = 50,
         max_concurrency: int = 10,
     ) -> EvalReport:
