@@ -35,6 +35,9 @@ class AnswerRelevance(BaseMetric):
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
             score = float(result_json.get("score", 0.0))
+            # Bound the score between 0.0 and 1.0 to avoid Pydantic ValidationError
+            score = max(0.0, min(1.0, score))
+            
             reason = str(result_json.get("reason", ""))
             return EvalResult(
                 metric_name=self.name,
@@ -42,9 +45,10 @@ class AnswerRelevance(BaseMetric):
                 reason=reason,
             )
         except Exception as e:
+            err_msg = str(e) or repr(e)
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
-                reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)},
+                reason=f"Failed to evaluate: {err_msg}",
+                metadata={"error": err_msg},
             )

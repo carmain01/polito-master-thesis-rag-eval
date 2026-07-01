@@ -39,18 +39,26 @@ class ContextRecall(BaseMetric):
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
-            score = float(result_json.get("score", 0.0))
+            statements = result_json.get("statements", [])
+            
+            if not statements:
+                score = 0.0
+            else:
+                covered = sum(1 for s in statements if s.get("is_covered", False))
+                score = float(covered) / len(statements)
+                
             reason = str(result_json.get("reason", ""))
             return EvalResult(
                 metric_name=self.name,
                 score=score,
                 reason=reason,
-                metadata={"statements": result_json.get("statements", [])},
+                metadata={"statements": statements},
             )
         except Exception as e:
+            err_msg = str(e) or repr(e)
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
-                reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)},
+                reason=f"Failed to evaluate: {err_msg}",
+                metadata={"error": err_msg},
             )

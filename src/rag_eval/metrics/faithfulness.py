@@ -36,18 +36,26 @@ class Faithfulness(BaseMetric):
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
-            score = float(result_json.get("score", 0.0))
+            claims = result_json.get("claims", [])
+            
+            if not claims:
+                score = 1.0  # 0 claims means no unfaithful claims
+            else:
+                supported = sum(1 for c in claims if c.get("supported", False))
+                score = float(supported) / len(claims)
+                
             reason = str(result_json.get("reason", ""))
             return EvalResult(
                 metric_name=self.name,
                 score=score,
                 reason=reason,
-                metadata={"claims": result_json.get("claims", [])},
+                metadata={"claims": claims},
             )
         except Exception as e:
+            err_msg = str(e) or repr(e)
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
-                reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)},
+                reason=f"Failed to evaluate: {err_msg}",
+                metadata={"error": err_msg},
             )

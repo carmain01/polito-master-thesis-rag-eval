@@ -51,12 +51,13 @@ class Evaluator:
             logger.warning(f"Failed to save checkpoint: {e}")
 
     async def _evaluate_sample_metric(
-        self, metric: BaseMetric, sample: TestSample, sem: asyncio.Semaphore
+        self, metric: BaseMetric, sample: TestSample, sample_index: int, sem: asyncio.Semaphore
     ) -> EvalResult | None:
         """Evaluate a single metric on a single sample, with error handling and concurrency limits."""
         async with sem:
             try:
                 result = await metric.score(sample)
+                result.sample_index = sample_index
                 return result
             except Exception as e:
                 logger.warning(f"Metric '{metric.name}' failed on sample: {e}")
@@ -83,13 +84,14 @@ class Evaluator:
             task_id = progress.add_task("[cyan]Evaluating...", total=total_tasks)
 
             # Process in batches
-            for i in range(0, len(samples), batch_size):
-                batch_samples = samples[i : i + batch_size]
+            enumerated_samples = list(enumerate(samples))
+            for i in range(0, len(enumerated_samples), batch_size):
+                batch_samples = enumerated_samples[i : i + batch_size]
 
                 coroutines = []
-                for sample in batch_samples:
+                for sample_idx, sample in batch_samples:
                     for metric in self.metrics:
-                        coroutines.append(self._evaluate_sample_metric(metric, sample, sem))
+                        coroutines.append(self._evaluate_sample_metric(metric, sample, sample_idx, sem))
 
                 # Run the batch concurrently
                 for coro in asyncio.as_completed(coroutines):

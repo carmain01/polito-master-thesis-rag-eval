@@ -16,6 +16,5 @@ Return a JSON object in this exact format:
       "supported": boolean (true if supported by context, false otherwise)
     }
   ],
-  "reason": "string (brief overall explanation)",
-  "score": float (number of supported claims / total claims. Return 1.0 if there are 0 claims.)
+  "reason": "string (brief overall explanation)"
 }

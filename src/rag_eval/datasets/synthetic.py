@@ -104,8 +104,30 @@ class SyntheticDataGenerator:
                             contexts.append(distractor)
                             random.shuffle(contexts)
 
+                        # Generate simulated RAG answer
+                        sim_text = ""
+                        # Emulate RAG imperfections: 70% correct, 15% hallucination, 15% unanswerable
+                        behavior_roll = random.random()
+                        if behavior_roll < 0.15:
+                            sim_system = "You are an AI assistant. Provide a plausible but entirely incorrect or hallucinated answer to the question, ignoring the facts in the context."
+                        elif behavior_roll < 0.30:
+                            sim_system = "You are an AI assistant. State exactly that the provided context does not contain enough information to answer the question, even if it does."
+                        else:
+                            sim_system = "You are a helpful AI assistant. Answer the question using ONLY the provided context."
+
+                        sim_prompt = f"Context:\n{chunk}\n\nQuestion:\n{q_text}\n\nAnswer:"
+                        try:
+                            async with sem:
+                                sim_response = await self.llm_client.complete(
+                                    prompt=sim_prompt, system=sim_system
+                                )
+                                sim_text = sim_response.text.strip()
+                        except Exception as e:
+                            logger.error(f"Failed to generate simulated answer for question: {q_text} - {e}")
+
                         sample = TestSample(
                             question=q_text,
+                            answer=sim_text,
                             ground_truth=a_text,
                             contexts=contexts,
                             metadata={

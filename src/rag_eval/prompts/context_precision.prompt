@@ -15,6 +15,5 @@ Return a JSON object in this exact format:
       "is_relevant": boolean (true if the chunk contains information useful for answering the question, false otherwise)
     }
   ],
-  "reason": "string (brief explanation)",
-  "score": float (number of relevant chunks / total chunks. Return 1.0 if there are no chunks.)
+  "reason": "string (brief explanation)"
 }

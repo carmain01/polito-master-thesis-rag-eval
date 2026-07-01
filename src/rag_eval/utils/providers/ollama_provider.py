@@ -38,7 +38,7 @@ class OllamaProvider(BaseLLMProvider):
         return "ollama"
 
     @retry(
-        stop=stop_after_attempt(3),
+        stop=stop_after_attempt(5),
         wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
         reraise=True,
     )
@@ -87,7 +87,7 @@ class OllamaProvider(BaseLLMProvider):
         )
 
     @retry(
-        stop=stop_after_attempt(3),
+        stop=stop_after_attempt(5),
         wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
         reraise=True,
     )

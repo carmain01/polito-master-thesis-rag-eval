@@ -78,17 +78,12 @@ class ReportGenerator:
 
         metrics = sorted({r.metric_name for r in self.report.results})
 
-        # Group results by sample — a new sample starts when a metric name repeats.
+        # Group results by sample
         sample_results: dict[int, dict[str, EvalResult]] = defaultdict(dict)
-        current_sample = 0
-        seen_metrics_in_current: set[str] = set()
 
         for res in self.report.results:
-            if res.metric_name in seen_metrics_in_current:
-                current_sample += 1
-                seen_metrics_in_current = set()
-            seen_metrics_in_current.add(res.metric_name)
-            sample_results[current_sample][res.metric_name] = res
+            idx = getattr(res, "sample_index", -1)
+            sample_results[idx][res.metric_name] = res
 
         with open(path, "w", newline="") as f:
             writer = csv.writer(f)
@@ -133,25 +128,18 @@ class ReportGenerator:
         best_samples: dict[str, tuple[int, float]] = {}
         worst_samples: dict[str, tuple[int, float]] = {}
 
-        current_sample = 0
-        seen_metrics_in_current: set[str] = set()
-
         for res in self.report.results:
-            if res.metric_name in seen_metrics_in_current:
-                current_sample += 1
-                seen_metrics_in_current = set()
-            seen_metrics_in_current.add(res.metric_name)
-
+            idx = getattr(res, "sample_index", -1)
             grouped[res.metric_name].append(res.score)
 
             # Track best/worst
             if res.metric_name not in best_samples or res.score > best_samples[res.metric_name][1]:
-                best_samples[res.metric_name] = (current_sample, res.score)
+                best_samples[res.metric_name] = (idx, res.score)
             if (
                 res.metric_name not in worst_samples
                 or res.score < worst_samples[res.metric_name][1]
             ):
-                worst_samples[res.metric_name] = (current_sample, res.score)
+                worst_samples[res.metric_name] = (idx, res.score)
 
         table = Table(title="Evaluation Summary", show_header=True, header_style="bold magenta")
         table.add_column("Metric", style="cyan")
@@ -236,14 +224,9 @@ class ReportGenerator:
 
         # Group by sample for drill-down table
         sample_results: dict[int, dict[str, EvalResult]] = defaultdict(dict)
-        current_sample = 0
-        seen_metrics_in_current: set[str] = set()
         for res in self.report.results:
-            if res.metric_name in seen_metrics_in_current:
-                current_sample += 1
-                seen_metrics_in_current = set()
-            seen_metrics_in_current.add(res.metric_name)
-            sample_results[current_sample][res.metric_name] = res
+            idx = getattr(res, "sample_index", -1)
+            sample_results[idx][res.metric_name] = res
 
         # Serialize for Chart.js
         chart_labels = json.dumps(labels)

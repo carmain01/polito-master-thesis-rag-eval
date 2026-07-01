@@ -36,18 +36,26 @@ class ContextPrecision(BaseMetric):
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
-            score = float(result_json.get("score", 0.0))
+            evals = result_json.get("evaluations", [])
+            
+            if not evals:
+                score = 1.0  # If there are no chunks, technically precision is not penalised, or 0.0. Let's use 0.0 to be safe since no relevant chunks were retrieved.
+            else:
+                relevant = sum(1 for e in evals if e.get("is_relevant", False))
+                score = float(relevant) / len(evals)
+                
             reason = str(result_json.get("reason", ""))
             return EvalResult(
                 metric_name=self.name,
                 score=score,
                 reason=reason,
-                metadata={"evaluations": result_json.get("evaluations", [])},
+                metadata={"evaluations": evals},
             )
         except Exception as e:
+            err_msg = str(e) or repr(e)
             return EvalResult(
                 metric_name=self.name,
                 score=0.0,
-                reason=f"Failed to evaluate: {str(e)}",
-                metadata={"error": str(e)},
+                reason=f"Failed to evaluate: {err_msg}",
+                metadata={"error": err_msg},
             )

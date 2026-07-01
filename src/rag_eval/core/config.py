@@ -33,8 +33,8 @@ class LLMConfig(BaseModel):
         default="",
         description="Custom API base URL (for Ollama, vLLM, Azure, etc.).",
     )
-    timeout: float = Field(default=60.0, gt=0, description="Request timeout in seconds.")
-    max_retries: int = Field(default=3, ge=0, description="Max retries on transient errors.")
+    timeout: float = Field(default=300.0, gt=0, description="Request timeout in seconds.")
+    max_retries: int = Field(default=5, ge=0, description="Max retries on transient errors.")
 
     def get_api_key(self) -> str:
         """Resolve API key: explicit value > env var."""

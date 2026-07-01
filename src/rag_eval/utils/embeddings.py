@@ -53,10 +53,9 @@ class EmbeddingClient:
             texts,
             batch_size=self.config.batch_size,
             show_progress_bar=False,
-            convert_to_tensor=True,
+            convert_to_numpy=True,
         )
-        # Convert torch tensors to plain Python lists
-        # (avoids numpy compatibility issues with certain torch versions)
+        # Convert numpy arrays to plain Python lists
         return [e.tolist() for e in embeddings]
 
     def embed_single(self, text: str) -> list[float]:

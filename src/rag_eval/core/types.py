@@ -24,6 +24,7 @@ class EvalResult(BaseModel):
 
     metric_name: str
     score: float = Field(..., ge=0.0, le=1.0)
+    sample_index: int = Field(default=-1, description="Index of the sample this result belongs to.")
     reason: str = Field(default="", description="LLM-generated explanation for the score.")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
