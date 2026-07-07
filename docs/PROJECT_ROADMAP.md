@@ -163,13 +163,13 @@ This document describes **all the phases** required to bring the framework from 
 - [x] Add dataset statistics summary (num samples, avg context length, etc.)
 
 ### 4.2 Benchmark Adapters (`datasets/benchmarks/`)
-- [ ] Implement HotpotQA adapter (multi-hop QA)
-- [ ] Implement Natural Questions adapter
-- [ ] Implement TriviaQA adapter
-- [ ] Implement SQuAD 2.0 adapter
-- [ ] Implement RGB benchmark adapter
-- [ ] Implement RECALL benchmark adapter
-- [ ] Write unit tests for each adapter
+- [x] Implement HotpotQA adapter (multi-hop QA)
+- [x] Implement Natural Questions adapter
+- [x] Implement TriviaQA adapter
+- [x] Implement SQuAD 2.0 adapter
+- [x] Implement RGB benchmark adapter
+- [x] Implement RECALL benchmark adapter
+- [x] Write unit tests for each adapter
 
 ### 4.3 Synthetic Data Generator (`datasets/synthetic.py`) ⭐ Central Feature
 - [x] Implement document chunking strategy (configurable chunk size/overlap)

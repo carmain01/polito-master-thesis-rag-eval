@@ -13,6 +13,10 @@ def mock_llm_client():
         "question": "What is the capital of France?",
         "answer": "Paris",
     }
+    # Mock complete() for simulated RAG answer generation
+    mock_response = AsyncMock()
+    mock_response.text = "Paris is the capital of France."
+    client.complete.return_value = mock_response
     return client
 
 
