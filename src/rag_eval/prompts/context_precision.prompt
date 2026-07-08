@@ -17,3 +17,5 @@ Return a JSON object in this exact format:
   ],
   "reason": "string (brief explanation)"
 }
+
+IMPORTANT: Return ONLY the JSON object above. Do not include any other text, markdown formatting, or code fences.

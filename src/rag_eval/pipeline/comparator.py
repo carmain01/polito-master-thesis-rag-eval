@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 from collections import defaultdict
 from typing import Any
@@ -14,6 +15,8 @@ except ImportError:
     HAS_SCIPY = False
 
 from rag_eval.core.types import EvalReport
+
+logger = logging.getLogger(__name__)
 
 
 class ConfigurationComparator:
@@ -50,8 +53,14 @@ class ConfigurationComparator:
                 b_scores = baseline_scores[metric]
                 c_scores = candidate_scores[metric]
 
-                # If lengths mismatch, we truncate to the shortest, but warn (paired test requires equal length)
+                # If lengths mismatch, we truncate to the shortest and warn
                 min_len = min(len(b_scores), len(c_scores))
+                if len(b_scores) != len(c_scores):
+                    logger.warning(
+                        "Sample count mismatch for metric '%s': baseline=%d, candidate=%d. "
+                        "Truncating to %d for paired comparison.",
+                        metric, len(b_scores), len(c_scores), min_len,
+                    )
                 b_scores = b_scores[:min_len]
                 c_scores = c_scores[:min_len]
 
@@ -88,8 +97,9 @@ class ConfigurationComparator:
         return results
 
     def _group_scores_by_metric(self, report: EvalReport) -> dict[str, list[float]]:
-        """Groups sample scores by metric name."""
+        """Groups sample scores by metric name, sorted by sample_index for correct pairing."""
         grouped: dict[str, list[float]] = defaultdict(list)
-        for res in report.results:
+        sorted_results = sorted(report.results, key=lambda r: r.sample_index)
+        for res in sorted_results:
             grouped[res.metric_name].append(res.score)
         return dict(grouped)

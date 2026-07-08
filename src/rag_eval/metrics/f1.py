@@ -10,10 +10,11 @@ from rag_eval.metrics.base import BaseMetric
 
 
 def normalize_text(text: str) -> str:
-    """Lowercases, removes punctuation and standardizes whitespace."""
+    """Lowercases, removes punctuation, articles, and standardizes whitespace."""
     text = text.lower()
     text = text.translate(str.maketrans("", "", string.punctuation))
-    return " ".join(text.split())
+    tokens = [t for t in text.split() if t not in {"a", "an", "the"}]
+    return " ".join(tokens)
 
 
 class TokenF1(BaseMetric):

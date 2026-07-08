@@ -38,13 +38,16 @@ def load_dataset(
     column_mapping = column_mapping or {}
 
     if format == "jsonl":
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             for line in f:
-                data = json.loads(line.strip())
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                data = json.loads(stripped)
                 data = _apply_mapping(data, column_mapping)
                 samples.append(TestSample(**data))
     elif format == "json":
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
             if isinstance(data, dict) and "data" in data:
                 data = data["data"]  # some json formats wrap in data array

@@ -32,16 +32,15 @@ class OllamaProvider(BaseLLMProvider):
             base_url=self._base_url,
             timeout=httpx.Timeout(config.timeout, connect=10.0),
         )
+        _retry = self._make_retry()
+        self.complete = _retry(self.complete)  # type: ignore[method-assign]
+        self.complete_json = _retry(self.complete_json)  # type: ignore[method-assign]
 
     @property
     def provider_name(self) -> str:
         return "ollama"
 
-    @retry(
-        stop=stop_after_attempt(5),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
+
     async def complete(
         self,
         prompt: str,
@@ -86,11 +85,7 @@ class OllamaProvider(BaseLLMProvider):
             cost_estimate=0.0,  # Local models are free
         )
 
-    @retry(
-        stop=stop_after_attempt(5),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
+
     async def complete_json(
         self,
         prompt: str,

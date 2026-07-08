@@ -114,48 +114,46 @@ def normalize_text(text: str) -> str:
     return text
 
 
-def extract_json_from_text(text: str) -> dict[str, Any]:
-    """Extract a JSON object from text that may contain surrounding content.
+def extract_json_from_text(text: str) -> dict[str, Any] | list[Any]:
+    """Extract a JSON object or array from text that may contain surrounding content.
 
     Useful for parsing LLM responses that include JSON within explanation text.
 
     Args:
-        text: Text potentially containing a JSON object.
+        text: Text potentially containing a JSON object or array.
 
     Returns:
-        Parsed JSON dictionary.
+        Parsed JSON as a dictionary or list.
 
     Raises:
-        ValueError: If no valid JSON object is found.
+        ValueError: If no valid JSON is found.
     """
     import json
 
     # Try parsing the entire text first
     text = text.strip()
-    from typing import cast
     try:
-        return cast(dict[str, Any], json.loads(text))
+        return json.loads(text)
     except json.JSONDecodeError:
         pass
 
-    # Try to find JSON object within the text
-    # Look for the outermost { ... } block
-    start = text.find("{")
-    if start == -1:
-        raise ValueError(f"No JSON object found in text: {text[:100]}...")
+    # Try to find JSON object or array within the text
+    for open_char, close_char in [("{", "}"), ("[", "]")]:
+        start = text.find(open_char)
+        if start == -1:
+            continue
 
-    # Find the matching closing brace
-    depth = 0
-    for i, char in enumerate(text[start:], start=start):
-        if char == "{":
-            depth += 1
-        elif char == "}":
-            depth -= 1
-            if depth == 0:
-                try:
-                    from typing import cast
-                    return cast(dict[str, Any], json.loads(text[start : i + 1]))
-                except json.JSONDecodeError:
-                    break
+        # Find the matching closing bracket
+        depth = 0
+        for i, char in enumerate(text[start:], start=start):
+            if char == open_char:
+                depth += 1
+            elif char == close_char:
+                depth -= 1
+                if depth == 0:
+                    try:
+                        return json.loads(text[start : i + 1])
+                    except json.JSONDecodeError:
+                        break
 
-    raise ValueError(f"No valid JSON object found in text: {text[:100]}...")
+    raise ValueError(f"No valid JSON found in text: {text[:100]}...")

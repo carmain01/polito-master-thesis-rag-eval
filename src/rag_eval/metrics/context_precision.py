@@ -39,7 +39,7 @@ class ContextPrecision(BaseMetric):
             evals = result_json.get("evaluations", [])
             
             if not evals:
-                score = 1.0  # If there are no chunks, technically precision is not penalised, or 0.0. Let's use 0.0 to be safe since no relevant chunks were retrieved.
+                score = 1.0  # No evaluations returned — precision is vacuously 1.0 (no irrelevant chunks retrieved).
             else:
                 relevant = sum(1 for e in evals if e.get("is_relevant", False))
                 score = float(relevant) / len(evals)

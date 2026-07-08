@@ -57,6 +57,12 @@ class MetricRegistry:
         cls._discovered = True
 
     @classmethod
+    def reset(cls) -> None:
+        """Clear the registry and discovery state. Primarily for testing."""
+        cls._registry.clear()
+        cls._discovered = False
+
+    @classmethod
     def create_metric(cls, name: str, **kwargs: Any) -> BaseMetric:
         """Create a metric instance by name."""
         if not cls._discovered:
@@ -69,10 +75,6 @@ class MetricRegistry:
             norm_key = key.lower().replace("-", "").replace("_", "")
             if norm_key == target:
                 return metric_cls(**kwargs)
-
-        # If not found, perhaps they passed the exact class name
-        if name.lower() in cls._registry:
-            return cls._registry[name.lower()](**kwargs)
 
         raise ValueError(
             f"Metric '{name}' not found in registry. Available: {list(cls._registry.keys())}"

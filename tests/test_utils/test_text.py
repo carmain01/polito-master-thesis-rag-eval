@@ -109,7 +109,7 @@ class TestExtractJsonFromText:
         assert result["outer"]["inner"] == 42
 
     def test_no_json_raises(self):
-        with pytest.raises(ValueError, match="No JSON"):
+        with pytest.raises(ValueError, match="No valid JSON"):
             extract_json_from_text("This has no JSON at all")
 
     def test_json_with_markdown_code_block(self):

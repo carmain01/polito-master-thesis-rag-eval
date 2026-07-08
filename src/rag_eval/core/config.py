@@ -18,6 +18,7 @@ class LLMConfig(BaseModel):
     provider: str = Field(
         default="ollama",
         description="LLM provider: 'openai', 'anthropic', 'google', 'ollama', 'vllm'.",
+        pattern=r'^(openai|anthropic|google|ollama|vllm)$',
     )
     model: str = Field(
         default="llama3.2",
@@ -111,6 +112,8 @@ class EvalConfig(BaseModel):
         """Load configuration from a YAML file."""
         import yaml
 
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
+        if data is None:
+            data = {}
         return cls(**data)

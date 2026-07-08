@@ -32,16 +32,15 @@ class VLLMProvider(BaseLLMProvider):
             base_url=self._base_url,
             timeout=httpx.Timeout(config.timeout, connect=10.0),
         )
+        _retry = self._make_retry()
+        self.complete = _retry(self.complete)  # type: ignore[method-assign]
+        self.complete_json = _retry(self.complete_json)  # type: ignore[method-assign]
 
     @property
     def provider_name(self) -> str:
         return "vllm"
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
+
     async def complete(
         self,
         prompt: str,
@@ -70,7 +69,10 @@ class VLLMProvider(BaseLLMProvider):
         latency_ms = (time.perf_counter() - start) * 1000
 
         data = response.json()
-        text = data["choices"][0]["message"]["content"]
+        choices = data.get("choices", [])
+        if not choices:
+            raise ValueError(f"vLLM returned empty choices: {data}")
+        text = choices[0].get("message", {}).get("content", "")
         usage = data.get("usage", {})
         input_tokens = usage.get("prompt_tokens", 0)
         output_tokens = usage.get("completion_tokens", 0)
@@ -85,11 +87,7 @@ class VLLMProvider(BaseLLMProvider):
             cost_estimate=0.0,  # Local models are free
         )
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential_jitter(initial=1, max=30, jitter=2),
-        reraise=True,
-    )
+
     async def complete_json(
         self,
         prompt: str,
@@ -120,7 +118,10 @@ class VLLMProvider(BaseLLMProvider):
         latency_ms = (time.perf_counter() - start) * 1000
 
         data = response.json()
-        text = data["choices"][0]["message"]["content"]
+        choices = data.get("choices", [])
+        if not choices:
+            raise ValueError(f"vLLM returned empty choices: {data}")
+        text = choices[0].get("message", {}).get("content", "")
         usage = data.get("usage", {})
         input_tokens = usage.get("prompt_tokens", 0)
         output_tokens = usage.get("completion_tokens", 0)

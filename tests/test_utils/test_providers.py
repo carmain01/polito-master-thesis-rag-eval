@@ -19,9 +19,10 @@ class TestCreateProvider:
     """Test the provider factory function."""
 
     def test_unknown_provider_raises(self):
-        config = LLMConfig(provider="unknown_provider")
-        with pytest.raises(ValueError, match="Unknown provider"):
-            create_provider(config)
+        from pydantic import ValidationError
+
+        with pytest.raises(ValidationError, match="string_pattern_mismatch"):
+            LLMConfig(provider="unknown_provider")
 
     @patch.dict("os.environ", {"OPENAI_API_KEY": "sk-test"})
     def test_create_openai(self):

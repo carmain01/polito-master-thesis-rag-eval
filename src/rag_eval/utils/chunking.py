@@ -1,7 +1,10 @@
+import logging
 import re
 
 import numpy as np
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 _ABBREVIATIONS = {
     "dr",
@@ -138,13 +141,13 @@ class ChunkingService:
             if chunks:
                 return chunks
         except Exception as e:
-            print(f"[ChunkingService] Semantic chunking failed, using fallback: {e}")
+            logger.warning("Semantic chunking failed, using fallback: %s", e)
 
         return self.fast_chunking(text)
 
     def fast_chunking(self, text: str) -> list[str]:
         """
-        Fallback rapido basato su lunghezza del testo.
+        Fast length-based fallback chunking.
         """
         return [text[i : i + 800] for i in range(0, len(text), 800)]
 
@@ -220,7 +223,7 @@ class ChunkingService:
 
             if should_split:
                 chunks.append(current_text)
-                # Overlap: riprendi le ultime `overlap` frasi nel nuovo chunk
+                # Overlap: carry over the last N sentences into the new chunk
                 if overlap > 0 and len(current_indices) >= overlap:
                     current_indices = list(current_indices[-overlap:]) + [i]
                 else:
@@ -228,10 +231,10 @@ class ChunkingService:
             else:
                 current_indices.append(i)
 
-        # Ultimo chunk
+        # Last chunk
         last_text = " ".join(cleaned[j] for j in current_indices)
         if chunks and len(last_text) < min_chunk_chars:
-            # Se l'ultimo chunk è troppo piccolo, uniscilo al precedente
+            # If the last chunk is too small, merge it with the previous one
             chunks[-1] = chunks[-1] + " " + last_text
         else:
             chunks.append(last_text)

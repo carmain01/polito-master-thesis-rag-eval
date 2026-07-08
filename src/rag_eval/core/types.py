@@ -24,7 +24,7 @@ class EvalResult(BaseModel):
 
     metric_name: str
     score: float = Field(..., ge=0.0, le=1.0)
-    sample_index: int = Field(default=-1, description="Index of the sample this result belongs to.")
+    sample_index: int = Field(default=0, description="Index of the sample this result belongs to.")
     reason: str = Field(default="", description="LLM-generated explanation for the score.")
     metadata: dict[str, Any] = Field(default_factory=dict)
 
@@ -62,7 +62,7 @@ class EvalReport(BaseModel):
         """Load an EvalReport from a JSON file (round-trip support)."""
         import json
 
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             data = json.load(f)
 
         # Handle the case where the JSON contains metadata wrapper

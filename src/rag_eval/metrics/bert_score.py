@@ -36,7 +36,7 @@ class BERTScore(BaseMetric):
                 lang="en",
                 verbose=False,
             )
-        return float(P), float(R), float(F1.item())
+        return float(P.item()), float(R.item()), float(F1.item())
 
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer or not sample.ground_truth:
@@ -49,7 +49,7 @@ class BERTScore(BaseMetric):
             self._compute_bert_score, sample.answer, sample.ground_truth
         )
 
-        f1_score = F1
+        f1_score = max(0.0, min(1.0, F1))
 
         return EvalResult(
             metric_name=self.name,

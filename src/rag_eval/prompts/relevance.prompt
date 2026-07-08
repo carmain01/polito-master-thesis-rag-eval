@@ -12,3 +12,5 @@ Return a JSON object in this exact format:
   "score": float (a value from 0.0 to 1.0 indicating relevance, where 1.0 is completely relevant),
   "reason": "string (brief explanation for the score)"
 }
+
+IMPORTANT: Return ONLY the JSON object above. Do not include any other text, markdown formatting, or code fences.

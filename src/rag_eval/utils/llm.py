@@ -117,10 +117,15 @@ class LLMClient:
         if use_cache and self._cache:
             cached = self._cache.get(prompt, system, self.config.model)
             if cached is not None:
-                logger.debug("Cache hit for JSON prompt (len=%d)", len(prompt))
-                return cast(dict[str, Any], json.loads(cached.text))
+                try:
+                    result = json.loads(cached.text)
+                    logger.debug("Cache hit for JSON prompt (len=%d)", len(prompt))
+                    return cast(dict[str, Any], result)
+                except json.JSONDecodeError:
+                    logger.warning("Cached response is not valid JSON, re-fetching.")
 
         # Call provider's JSON mode
+        self._provider._last_response = None
         result = await self._provider.complete_json(prompt, system, **kwargs)
 
         # Track and cache the raw response if available

@@ -23,11 +23,9 @@ class BaseMetric(ABC):
 
     async def score_batch(self, samples: list[TestSample]) -> list[EvalResult]:
         """Evaluate a batch of samples. Override for optimized batch processing."""
-        results = []
-        for sample in samples:
-            result = await self.score(sample)
-            results.append(result)
-        return results
+        import asyncio
+        results = await asyncio.gather(*(self.score(sample) for sample in samples))
+        return list(results)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name!r})"

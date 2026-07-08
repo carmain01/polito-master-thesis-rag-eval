@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import importlib.metadata
+import html
 import json
 from typing import Any
 import statistics
@@ -63,7 +64,7 @@ class ReportGenerator:
             "report": self.report.model_dump(mode="json"),
         }
 
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             json.dump(output_data, f, indent=2)
 
     def to_csv(self, path: str | Path) -> None:
@@ -85,7 +86,7 @@ class ReportGenerator:
             idx = getattr(res, "sample_index", -1)
             sample_results[idx][res.metric_name] = res
 
-        with open(path, "w", newline="") as f:
+        with open(path, "w", newline="", encoding="utf-8") as f:
             writer = csv.writer(f)
 
             header = ["Sample_Index"]
@@ -202,7 +203,7 @@ class ReportGenerator:
         if not template_file.exists():
             raise FileNotFoundError(f"Template not found at {template_file}")
 
-        with open(template_file) as f:
+        with open(template_file, encoding="utf-8") as f:
             template = string.Template(f.read())
 
         # Group scores by metric for charts
@@ -250,9 +251,7 @@ class ReportGenerator:
             # The expanded details
             table_rows += f'<tr><td colspan="3" class="p-0 border-0"><div class="collapse" id="sample-{s_idx}"><table class="table table-sm mb-0 bg-light">'
             for m, res in res_dict.items():
-                safe_reason = (
-                    res.reason.replace("<", "&lt;").replace(">", "&gt;") if res.reason else ""
-                )
+                safe_reason = html.escape(res.reason) if res.reason else ""
                 table_rows += f'<tr><td style="width: 20%;">{m}</td><td style="width: 10%;">{res.score:.3f}</td><td>{safe_reason}</td></tr>'
             table_rows += "</table></div></td></tr>\n"
 
@@ -270,7 +269,7 @@ class ReportGenerator:
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
 
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(html_content)
 
     @staticmethod
@@ -294,7 +293,7 @@ class ReportGenerator:
         if not template_file.exists():
             raise FileNotFoundError(f"Template not found at {template_file}")
 
-        with open(template_file) as f:
+        with open(template_file, encoding="utf-8") as f:
             template = string.Template(f.read())
 
         # Collect all metric names across every report.
@@ -322,7 +321,7 @@ class ReportGenerator:
             )
 
         # Build config column headers.
-        config_headers = "".join(f"<th>{label}</th>" for label in reports.keys())
+        config_headers = "".join(f"<th>{html.escape(str(label))}</th>" for label in reports.keys())
 
         # Build summary rows with delta.
         summary_rows = ""
@@ -352,5 +351,5 @@ class ReportGenerator:
             timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
 
-        with open(path, "w") as f:
+        with open(path, "w", encoding="utf-8") as f:
             f.write(html_content)
