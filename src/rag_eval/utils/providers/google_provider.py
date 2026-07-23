@@ -86,7 +86,6 @@ class GoogleProvider(BaseLLMProvider):
         **kwargs: Any,
     ) -> dict[str, Any]:
         """Send a request with JSON response format."""
-        from typing import Any, cast
         from google.genai import types
 
         json_system = system or "You are a helpful assistant."

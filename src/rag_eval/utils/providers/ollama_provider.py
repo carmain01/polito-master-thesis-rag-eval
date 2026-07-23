@@ -4,10 +4,9 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any
+from typing import Any, cast
 
 import httpx
-from tenacity import retry, stop_after_attempt, wait_exponential_jitter
 
 from rag_eval.core.config import LLMConfig
 from rag_eval.utils.provider import BaseLLMProvider, LLMResponse
@@ -136,7 +135,6 @@ class OllamaProvider(BaseLLMProvider):
             cost_estimate=0.0,
         )
 
-        from typing import cast
         return cast(dict[str, Any], json.loads(text))
 
     async def close(self) -> None:

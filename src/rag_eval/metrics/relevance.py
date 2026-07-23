@@ -22,7 +22,7 @@ class AnswerRelevance(BaseMetric):
 
     @property
     def name(self) -> str:
-        return "relevance"
+        return "answer_relevance"
 
     async def score(self, sample: TestSample) -> EvalResult:
         if not sample.answer:

@@ -93,7 +93,6 @@ class AnthropicProvider(BaseLLMProvider):
         Anthropic doesn't have a native JSON mode, so we instruct the model
         to return JSON and parse the response text.
         """
-        from typing import cast
         
         json_system = system or "You are a helpful assistant."
         json_system += (
