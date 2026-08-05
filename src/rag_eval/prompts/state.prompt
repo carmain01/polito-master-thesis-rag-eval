@@ -1,0 +1,58 @@
+You are an expert educational analyst. Your task is to classify the primary pedagogical intent of a tutoring system's answer to a student's question.
+
+Given the student's question/input and the system's answer, classify the interaction into EXACTLY ONE of the following three states.
+
+STEP 1 — CHECK FOR STUDENT ERROR:
+Read the student's question/input carefully. Does it contain an explicit mistake, wrong calculation, misconception, or flawed assumption?
+- If YES → go to State B.
+- If NO → go to Step 2.
+
+STEP 2 — ANALYSE THE SYSTEM'S ANSWER CONTENT:
+Estimate what percentage of the system's answer is devoted to:
+(a) Providing explanations, definitions, facts, examples, or structural overviews.
+(b) Asking probing questions or pushing cognitive work back to the student.
+
+- If the answer is PRIMARILY explanatory (roughly ≥60% of its content is informational, even if it ends with a question or uses rhetorical phrasing) → State A.
+- If the answer is PRIMARILY probing (the main body consists of questions guiding the student to reason, with minimal factual content provided) → State C.
+
+STATE DEFINITIONS:
+
+State A — Concept Teaching ("concept_teaching"):
+The system provides direct explanations, definitions, examples, or structural overviews to teach a concept. A teaching answer MAY contain a closing rhetorical question (e.g., "Does that make sense?" or "Can you see why?") and still be State A — what matters is that the bulk of the answer teaches.
+EXAMPLE:
+  Student: "What is a hash table?"
+  System: "A hash table is a data structure that maps keys to values using a hash function. The hash function converts the key into an array index for O(1) average-case access. Collisions are handled via chaining or open addressing."
+  → State A (purely explanatory)
+
+State B — Error Remediation ("error_remediation"):
+The student's input contains a clear mistake, misconception, or wrong calculation, and the system responds to correct or guide the student away from that error. Even if the system uses Socratic questions to lead the student to self-correct, it is STILL State B because the trigger is the student's error.
+EXAMPLE:
+  Student: "I solved 2x + 6 = 14 and got x = 10."
+  System: "Let's check together. If you subtract 6 from both sides, what do you get before dividing?"
+  → State B (student made an error; system guides correction)
+
+State C — Assessment / Socratic Questioning ("assessment_socratic_questioning"):
+The student's input is correct or neutral (no error), and the system responds primarily by asking probing questions to make the student reason, with little or no direct explanation provided. The answer's main substance is the questions themselves, not factual content.
+EXAMPLE:
+  Student: "Why is Selection Sort always O(n²)?"
+  System: "Think about the inner loop: even if the array is sorted, does the algorithm know the minimum without scanning the rest?"
+  → State C (no error present; answer is almost entirely a probing question)
+
+CRITICAL DISTINCTION — State A vs State C:
+If the system's answer contains substantial explanatory content (definitions, step-by-step reasoning, examples) AND ALSO asks a question, look at the PROPORTION. If removing the question(s) would still leave a meaningful, self-contained explanation → State A. If removing the questions would leave almost nothing → State C.
+
+Question:
+${question}
+
+Answer:
+${answer}
+
+Return a JSON object in this exact format:
+{
+  "state": "string (exactly one single capital letter: A, B, or C)",
+  "state_label": "string (exactly one label: concept_teaching, error_remediation, or assessment_socratic_questioning)",
+  "confidence": float (a value from 0.0 to 1.0 — use lower values like 0.5-0.7 when the answer mixes teaching with questioning),
+  "reason": "string (explanation of why this state was chosen, referencing the proportion of explanatory vs probing content)"
+}
+
+IMPORTANT: Return ONLY the JSON object above. Do not include any other text, markdown formatting, or code fences.

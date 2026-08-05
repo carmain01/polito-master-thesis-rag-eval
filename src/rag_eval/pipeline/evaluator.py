@@ -151,11 +151,11 @@ class Evaluator:
         """
         try:
             asyncio.get_running_loop()
+        except RuntimeError:
+            pass
+        else:
             raise RuntimeError(
                 "Cannot call evaluate() from within a running event loop. "
                 "Use 'await evaluator.evaluate_async(...)' instead."
             )
-        except RuntimeError as e:
-            if "running event loop" in str(e).lower() or "cannot call" in str(e).lower():
-                raise
         return asyncio.run(self.evaluate_async(samples, batch_size, max_concurrency))

@@ -1,0 +1,992 @@
+[
+  {
+    "question": "What is a recursive function and how does it differ from an iterative function?",
+    "answer": "A recursive function is a function that calls itself to solve smaller sub-problems of the same type until reaching a base case that stops the recursion chain. Unlike an iterative loop, which uses constructs like for or while to repeat code, recursion utilizes the call stack to maintain state. Each recursive call consumes stack memory, whereas an iterative loop generally consumes constant memory.",
+    "ground_truth": "A recursive function calls itself with reduced input until a base case; an iterative function uses loops (for/while) without extra stack calls.",
+    "contexts": [
+      "Recursion vs Iteration:\nRecursion is a technique where a function solves a problem by calling itself with smaller input. It requires a base case to terminate. Iteration uses loop constructs (for, while) to repeat operations. Recursion is elegant but can cause stack overflow for very large inputs unless optimized with tail recursion."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "medium",
+      "chunk_id": 201,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "en",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Qual è la complessità temporale di una ricerca binaria?",
+    "answer": "La ricerca binaria ha una complessità temporale di O(log n) nel caso medio e peggiore, e O(1) nel caso migliore, quando l'elemento cercato si trova esattamente al centro dell'array. Ad ogni passo, l'algoritmo dimezza lo spazio di ricerca confrontando l'elemento centrale con il valore target, eliminando metà degli elementi rimanenti. Per funzionare, l'array deve essere ordinato.",
+    "ground_truth": "La complessità temporale della ricerca binaria è O(log n).",
+    "contexts": [
+      "Ricerca Binaria:\nLa ricerca binaria è un algoritmo di ricerca efficiente che opera su array ordinati. Ad ogni iterazione, confronta l'elemento centrale con il target: se sono uguali, la ricerca termina; se il target è minore, si prosegue nella metà sinistra; altrimenti nella metà destra. La complessità è O(log n) poiché lo spazio di ricerca si dimezza ad ogni passo."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "factual_conceptual",
+      "difficulty": "easy",
+      "chunk_id": 202,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho calcolato che la complessità del Merge Sort è O(n) perché scorre tutti gli elementi una volta. È giusto?",
+    "answer": "Capisco il tuo ragionamento — è vero che il Merge Sort scorre tutti gli n elementi durante la fase di merge. Tuttavia, devi considerare anche quante volte avviene questa operazione di merge. L'array viene diviso a metà ripetutamente: quante volte puoi dividere n a metà prima di arrivare a sotto-array di dimensione 1? Questo numero di livelli, moltiplicato per il lavoro O(n) ad ogni livello, ti darà la complessità corretta.",
+    "ground_truth": "La complessità del Merge Sort è O(n log n), non O(n). La divisione genera log n livelli, ciascuno con O(n) lavoro di merge.",
+    "contexts": [
+      "Merge Sort:\nIl Merge Sort è un algoritmo divide-et-impera che divide l'array a metà ricorsivamente fino a ottenere sotto-array di un elemento, poi li fonde (merge) in ordine. La fase di merge ad ogni livello richiede O(n) operazioni. Poiché ci sono log n livelli di divisione, la complessità totale è O(n log n) in tutti i casi (migliore, medio, peggiore)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_mistake",
+      "difficulty": "medium",
+      "chunk_id": 203,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Che differenza c'è tra una lista e una tupla in Python?",
+    "answer": "In Python, la differenza fondamentale è la mutabilità: una lista è mutabile, cioè puoi aggiungere, rimuovere o modificare elementi dopo la creazione; una tupla è immutabile, una volta creata non può essere alterata. Le liste si definiscono con parentesi quadre [1, 2, 3], le tuple con parentesi tonde (1, 2, 3). Le tuple, essendo immutabili, sono più efficienti in termini di memoria e possono essere usate come chiavi di dizionari, cosa impossibile con le liste.",
+    "ground_truth": "Le liste sono mutabili e usano [], le tuple sono immutabili e usano (). Le tuple sono hashable e possono fungere da chiavi di dizionario.",
+    "contexts": [
+      "Strutture dati Python — Liste e Tuple:\nLe liste (list) sono collezioni ordinate e mutabili: supportano append, insert, remove e indicizzazione. Le tuple (tuple) sono collezioni ordinate e immutabili: una volta create, i loro elementi non possono essere modificati. Le tuple occupano meno memoria e sono leggermente più veloci da iterare. Sono hashable e possono essere usate come chiavi di dizionari."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "factual_conceptual",
+      "difficulty": "easy",
+      "chunk_id": 204,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Penso che in Python, le variabili globali siano sempre preferibili alle variabili locali perché sono accessibili ovunque.",
+    "answer": "È comprensibile pensarlo, ma proviamo a riflettere sulle conseguenze pratiche. Immagina un programma con 50 funzioni che modificano tutte la stessa variabile globale: se un bug cambia il valore in modo inaspettato, in quale funzione andresti a cercare l'errore? Le variabili locali limitano lo scope, rendendo il codice più prevedibile e testabile. Le variabili globali creano dipendenze nascoste tra funzioni, violando il principio di incapsulamento.",
+    "ground_truth": "Falso. Le variabili globali creano accoppiamento, rendono il debugging difficile e violano l'incapsulamento. Sono preferibili le variabili locali e il passaggio esplicito di parametri.",
+    "contexts": [
+      "Scope delle Variabili in Python:\nLe variabili locali esistono solo nel contesto della funzione in cui sono definite. Le variabili globali sono accessibili da qualsiasi punto del modulo, ma il loro uso eccessivo è sconsigliato perché introduce effetti collaterali, rende il codice difficile da testare e da mantenere. La buona pratica è minimizzare le variabili globali e preferire il passaggio esplicito di parametri."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "misconception",
+      "difficulty": "easy",
+      "chunk_id": 205,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Puoi spiegarmi cosa sono le tabelle hash e perché l'accesso è O(1)?",
+    "answer": "Una tabella hash è una struttura dati che associa chiavi a valori tramite una funzione hash. Questa funzione trasforma la chiave in un indice numerico che punta direttamente alla posizione in memoria dove il valore è memorizzato. Ecco perché l'accesso è O(1) nel caso medio: non serve scorrere la struttura, si calcola l'indice e si accede direttamente. Però — e questo è importante — nel caso peggiore, quando molte chiavi collidono sulla stessa posizione, la complessità può degradare fino a O(n).",
+    "ground_truth": "Le tabelle hash usano una funzione hash per mappare chiavi a indici. L'accesso è O(1) nel caso medio grazie all'accesso diretto, ma O(n) nel caso peggiore per collisioni.",
+    "contexts": [
+      "Tabelle Hash:\nUna tabella hash (hash table) memorizza coppie chiave-valore. Una funzione hash converte la chiave in un indice dell'array sottostante, permettendo accesso diretto in O(1) nel caso medio. Le collisioni (due chiavi con lo stesso hash) vengono gestite tramite chaining (liste concatenate) o open addressing. Nel caso peggiore (tutte le chiavi collidono), l'accesso degrada a O(n)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "medium",
+      "chunk_id": 206,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho scritto un algoritmo di ordinamento che confronta ogni elemento con tutti gli altri e ha complessità O(n). È possibile?",
+    "answer": "Proviamo a ragionare insieme su cosa succede con i confronti. Se per ogni elemento dell'array devi confrontarlo con tutti gli altri, quanti confronti totali fai? Per il primo elemento fai n-1 confronti, per il secondo n-2, e così via. Riesci a sommare questa serie e capire quale ordine di grandezza ottieni?",
+    "ground_truth": "No, un algoritmo basato su confronti che confronta ogni elemento con tutti gli altri ha complessità O(n²), non O(n). La somma 1+2+...+(n-1) = n(n-1)/2 = O(n²).",
+    "contexts": [
+      "Limiti inferiori degli algoritmi di ordinamento:\nQualsiasi algoritmo di ordinamento basato su confronti richiede almeno O(n log n) confronti nel caso peggiore (teorema dell'albero decisionale). Algoritmi come Bubble Sort, Selection Sort e Insertion Sort effettuano O(n²) confronti perché usano cicli annidati. Solo algoritmi non basati su confronti (Counting Sort, Radix Sort) possono raggiungere O(n) in casi specifici."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "medium",
+      "chunk_id": 207,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Qual è la differenza tra processo e thread in un sistema operativo?",
+    "answer": "Un processo è un'istanza indipendente di un programma in esecuzione, con il proprio spazio di indirizzamento in memoria, registri e risorse. Un thread, invece, è un'unità di esecuzione all'interno di un processo: più thread dello stesso processo condividono lo stesso spazio di memoria e le risorse, ma ciascuno ha il proprio stack e program counter. Creare un thread è più leggero rispetto a creare un processo, ma la condivisione della memoria tra thread richiede meccanismi di sincronizzazione per evitare race condition.",
+    "ground_truth": "Un processo ha il proprio spazio di memoria; i thread condividono la memoria del processo padre. I thread sono più leggeri ma richiedono sincronizzazione.",
+    "contexts": [
+      "Processi e Thread:\nUn processo è un programma in esecuzione con spazio di indirizzamento, risorse e stato propri. Il sistema operativo isola i processi tra loro per sicurezza. Un thread è la più piccola unità schedulabile dal sistema operativo; più thread di uno stesso processo condividono codice, dati e risorse. La comunicazione inter-thread è più veloce di quella inter-processo, ma richiede gestione esplicita della concorrenza (mutex, semafori)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "factual_conceptual",
+      "difficulty": "medium",
+      "chunk_id": 208,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Credo che il protocollo UDP sia più sicuro di TCP perché è più semplice.",
+    "answer": "Capisco perché la semplicità potrebbe sembrare un vantaggio in termini di sicurezza, ma in realtà è il contrario. UDP non effettua handshake, non garantisce la consegna dei pacchetti e non verifica l'ordine di arrivo. TCP invece stabilisce una connessione affidabile tramite il three-way handshake, gestisce la ritrasmissione dei pacchetti persi e il controllo di flusso. La semplicità di UDP lo rende adatto per applicazioni in tempo reale (streaming, gaming), ma non per situazioni dove l'integrità dei dati è critica.",
+    "ground_truth": "Falso. TCP è più affidabile di UDP perché garantisce consegna, ordine e integrità dei dati tramite handshake e ritrasmissione. UDP è più veloce ma meno affidabile.",
+    "contexts": [
+      "TCP vs UDP:\nTCP (Transmission Control Protocol) è un protocollo orientato alla connessione che garantisce consegna affidabile, ordinata e senza errori dei dati tramite three-way handshake, acknowledgment e ritrasmissione. UDP (User Datagram Protocol) è senza connessione, non garantisce consegna né ordine, ma ha latenza inferiore. UDP è usato per streaming, VoIP e gaming dove la velocità è prioritaria."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "misconception",
+      "difficulty": "medium",
+      "chunk_id": 209,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Se ho una matrice 3x3, come calcolo il determinante?",
+    "answer": "Per calcolare il determinante di una matrice 3×3, puoi usare la regola di Sarrus o l'espansione per cofattori lungo la prima riga. Con la regola di Sarrus, sommi i prodotti delle tre diagonali principali e sottrai i prodotti delle tre diagonali secondarie. Con l'espansione per cofattori, scegli una riga o colonna, moltiplichi ogni elemento per il suo cofattore (il determinante della sottomatrice 2×2 ottenuta eliminando la riga e colonna dell'elemento, con segno alternato) e sommi i risultati.",
+    "ground_truth": "Il determinante di una matrice 3×3 si calcola con la regola di Sarrus o l'espansione per cofattori: det(A) = a(ei−fh) − b(di−fg) + c(dh−eg).",
+    "contexts": [
+      "Calcolo del Determinante 3×3:\nData una matrice A = [[a,b,c],[d,e,f],[g,h,i]], il determinante è: det(A) = a(ei-fh) - b(di-fg) + c(dh-eg). Metodo alternativo: regola di Sarrus, che prevede di ricopiare le prime due colonne a destra della matrice, sommare i prodotti delle diagonali discendenti e sottrarre i prodotti delle diagonali ascendenti."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "procedural",
+      "difficulty": "medium",
+      "chunk_id": 210,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "I integrated the function 1/x from 0 to 1 and got 0. Is that correct?",
+    "answer": "Be careful, there is a fundamental issue with this integral. The function 1/x is undefined at x=0: it is an essential discontinuity. Thus, the integral of 1/x from 0 to 1 is an improper integral. How do you evaluate the limit of the integral from epsilon to 1 as epsilon approaches 0 from the right? Try computing the antiderivative ln|x| and evaluating that limit.",
+    "ground_truth": "Incorrect. The integral of 1/x from 0 to 1 is an improper integral that diverges to +infinity, since lim(e->0+) [ln(1) - ln(e)] = +infinity.",
+    "contexts": [
+      "Improper Integrals:\nAn integral is improper if the interval of integration is unbounded or if the integrand has an infinite discontinuity. For f(x) = 1/x on (0, 1], the function approaches +infinity as x->0+. The integral is defined as lim_{e->0+} int_e^1 (1/x) dx = lim_{e->0+} [ln 1 - ln e] = +infinity. Thus the integral diverges."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_mistake",
+      "difficulty": "hard",
+      "chunk_id": 211,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "en",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Cosa succede durante un context switch in un sistema operativo?",
+    "answer": "Durante un context switch, il sistema operativo salva lo stato completo del processo attualmente in esecuzione — registri della CPU, program counter, stack pointer e tabella delle pagine — nel suo Process Control Block (PCB). Successivamente, carica lo stato del processo successivo dal suo PCB, ripristinando i registri e configurando l'MMU per il nuovo spazio di indirizzamento. Questo processo ha un costo non trascurabile: richiede tempo di CPU che non è dedicato a lavoro utile, e invalida le cache, potenzialmente degradando le prestazioni.",
+    "ground_truth": "Il context switch salva lo stato del processo corrente nel PCB, carica lo stato del nuovo processo, e comporta costi di overhead per salvataggio registri e invalidazione cache.",
+    "contexts": [
+      "Context Switch:\nIl context switch è il meccanismo con cui il SO passa dall'esecuzione di un processo a un altro. Le fasi sono: 1) Salvataggio dello stato del processo corrente (registri, PC, SP) nel PCB. 2) Aggiornamento dello stato del processo (da running a ready/waiting). 3) Caricamento dello stato del nuovo processo dal suo PCB. 4) Aggiornamento delle strutture di memoria (TLB, tabelle delle pagine). Il costo varia da pochi microsecondi a centinaia, a seconda dell'architettura."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "hard",
+      "chunk_id": 212,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "In un albero binario di ricerca, se inserisco i valori 5, 3, 7, 1, 4 in quest'ordine, quale sarà la struttura risultante?",
+    "answer": "Ottima domanda per capire come funziona l'inserimento in un BST! Proviamo a costruirlo passo dopo passo: 5 diventa la radice. 3 è minore di 5, quindi va a sinistra. 7 è maggiore di 5, va a destra. Ora, 1: è minore di 5 (sinistra), poi minore di 3 (sinistra di 3). Infine 4: è minore di 5 (sinistra), poi maggiore di 3 (destra di 3). Riesci a disegnare l'albero risultante e verificare che la proprietà del BST sia rispettata per ogni nodo?",
+    "ground_truth": "L'albero ha 5 come radice, 3 come figlio sinistro (con 1 a sinistra e 4 a destra), e 7 come figlio destro.",
+    "contexts": [
+      "Albero Binario di Ricerca (BST):\nUn BST è un albero binario in cui per ogni nodo, tutti i valori nel sottoalbero sinistro sono minori e tutti i valori nel sottoalbero destro sono maggiori. L'inserimento avviene confrontando il nuovo valore con il nodo corrente e scendendo a sinistra o destra fino a trovare una posizione vuota. La forma dell'albero dipende dall'ordine di inserimento."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "easy",
+      "chunk_id": 213,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Ho risolto il sistema di equazioni lineari 2x + y = 5 e 4x + 2y = 10 e ho trovato x=1, y=3. È unico?",
+    "answer": "Il tuo risultato x=1, y=3 è effettivamente una soluzione — puoi verificarlo sostituendo. Però prova a osservare attentamente le due equazioni: la seconda non ti sembra familiare? Cosa noti se dividi la seconda equazione per 2? Che implicazione ha questo sul numero di soluzioni del sistema?",
+    "ground_truth": "Il sistema ha infinite soluzioni perché le due equazioni sono linearmente dipendenti (la seconda è il doppio della prima). x=1, y=3 è una delle infinite soluzioni.",
+    "contexts": [
+      "Sistemi di Equazioni Lineari:\nUn sistema di equazioni lineari può avere una soluzione unica (equazioni indipendenti), infinite soluzioni (equazioni dipendenti, cioè proporzionali tra loro), o nessuna soluzione (equazioni parallele). Si verifica calcolando il determinante della matrice dei coefficienti: se è diverso da zero, la soluzione è unica; se è zero, le equazioni sono dipendenti o incompatibili."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "medium",
+      "chunk_id": 214,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Cos'è il principio SOLID nella programmazione orientata agli oggetti?",
+    "answer": "SOLID è un acronimo che indica cinque principi fondamentali della progettazione orientata agli oggetti. S sta per Single Responsibility: ogni classe dovrebbe avere una sola responsabilità. O per Open/Closed: le entità software dovrebbero essere aperte all'estensione ma chiuse alla modifica. L per Liskov Substitution: gli oggetti di una superclasse devono essere sostituibili con oggetti delle sottoclassi senza alterare il funzionamento. I per Interface Segregation: è meglio avere interfacce specifiche che una generica. D per Dependency Inversion: i moduli di alto livello non devono dipendere da quelli di basso livello, ma da astrazioni.",
+    "ground_truth": "SOLID: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion — cinque principi per codice manutenibile e scalabile.",
+    "contexts": [
+      "Principi SOLID:\n- Single Responsibility Principle (SRP): una classe, un solo motivo per cambiare.\n- Open/Closed Principle (OCP): aperta all'estensione, chiusa alla modifica.\n- Liskov Substitution Principle (LSP): le sottoclassi devono essere sostituibili alle superclassi.\n- Interface Segregation Principle (ISP): interfacce piccole e specifiche.\n- Dependency Inversion Principle (DIP): dipendere da astrazioni, non da implementazioni concrete."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "medium",
+      "chunk_id": 215,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Secondo me, in un database relazionale, denormalizzare le tabelle è sempre sbagliato perché introduce ridondanza.",
+    "answer": "Hai ragione che la denormalizzazione introduce ridondanza, e questa è effettivamente una conseguenza negativa. Tuttavia, in certi contesti la denormalizzazione è una scelta progettuale deliberata. Pensa a un sistema con milioni di query di lettura al secondo: ogni JOIN ha un costo computazionale. Denormalizzare significa duplicare alcuni dati per evitare JOIN costosi, sacrificando spazio di archiviazione e complessità di aggiornamento per guadagnare velocità di lettura. È un trade-off ingegneristico, non un errore assoluto.",
+    "ground_truth": "Falso. La denormalizzazione è talvolta necessaria per ottimizzare le prestazioni di lettura, accettando il trade-off di maggiore ridondanza e complessità di aggiornamento.",
+    "contexts": [
+      "Normalizzazione e Denormalizzazione:\nLa normalizzazione elimina la ridondanza organizzando i dati in tabelle separate collegate da chiavi esterne. La denormalizzazione è il processo inverso: si introduce ridondanza controllata per ridurre il numero di JOIN e migliorare le prestazioni di lettura. È comune in data warehousing, caching e sistemi ad alta concorrenza dove la velocità di lettura è prioritaria."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "misconception",
+      "difficulty": "hard",
+      "chunk_id": 216,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Come funziona l'algoritmo di Dijkstra per trovare il cammino minimo?",
+    "answer": "L'algoritmo di Dijkstra trova il cammino più breve da un nodo sorgente a tutti gli altri nodi in un grafo con pesi non negativi. Inizia assegnando distanza 0 al nodo sorgente e infinito a tutti gli altri. Ad ogni passo, seleziona il nodo non visitato con la distanza minima, lo segna come visitato, e aggiorna le distanze dei suoi vicini se trova un percorso più breve passando per esso. Questo processo si ripete finché tutti i nodi sono stati visitati. Utilizza tipicamente una coda a priorità per selezionare efficientemente il nodo con distanza minima.",
+    "ground_truth": "Dijkstra assegna distanza 0 alla sorgente, infinito agli altri; ad ogni passo visita il nodo a distanza minima e aggiorna le distanze dei vicini. Richiede pesi non negativi.",
+    "contexts": [
+      "Algoritmo di Dijkstra:\nL'algoritmo di Dijkstra calcola i cammini minimi da un nodo sorgente in un grafo pesato con pesi non negativi. Usa un approccio greedy: mantiene un insieme di nodi visitati e una tabella delle distanze. Ad ogni iterazione, estrae il nodo con distanza minima (usando una coda a priorità), lo visita, e rilassa gli archi uscenti. Complessità: O((V+E) log V) con heap binario."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "procedural",
+      "difficulty": "hard",
+      "chunk_id": 217,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho implementato Dijkstra su un grafo con archi di peso negativo e i risultati sono sbagliati. Perché?",
+    "answer": "Ecco il punto cruciale: l'algoritmo di Dijkstra si basa sull'assunzione greedy che, una volta visitato un nodo, la sua distanza sia definitiva. Ma con pesi negativi, potrebbe esistere un percorso più lungo in termini di archi ma con peso totale inferiore, che passi per un arco negativo scoperto successivamente. L'algoritmo non torna mai indietro a ricalcolare nodi già visitati, quindi produce risultati errati. Per grafi con pesi negativi, devi usare l'algoritmo di Bellman-Ford, che rilassa tutti gli archi V-1 volte.",
+    "ground_truth": "Dijkstra non funziona con pesi negativi perché l'assunzione greedy fallisce. Usare Bellman-Ford per grafi con pesi negativi.",
+    "contexts": [
+      "Limitazioni di Dijkstra:\nDijkstra richiede che tutti i pesi degli archi siano non negativi. Con pesi negativi, l'assunzione che un nodo visitato abbia la distanza definitiva è violata. L'algoritmo di Bellman-Ford gestisce pesi negativi rilassando tutti gli archi V-1 volte, con complessità O(VE). Può anche rilevare cicli negativi."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "debugging",
+      "difficulty": "hard",
+      "chunk_id": 218,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Qual è la differenza tra overfitting e underfitting nel machine learning?",
+    "answer": "L'overfitting si verifica quando un modello impara troppo bene i dati di training, catturando anche il rumore e le anomalie specifiche di quel dataset, ma fallisce nel generalizzare su dati nuovi. L'underfitting, al contrario, si verifica quando il modello è troppo semplice per catturare i pattern nei dati, producendo prestazioni scarse sia sul training set che sul test set. Immagina l'overfitting come uno studente che memorizza le risposte esatte di un esame passato ma non capisce i concetti, e l'underfitting come uno studente che non ha studiato abbastanza.",
+    "ground_truth": "Overfitting: modello troppo complesso, si adatta al rumore, scarsa generalizzazione. Underfitting: modello troppo semplice, non cattura i pattern. Si cerca il giusto equilibrio (bias-variance tradeoff).",
+    "contexts": [
+      "Overfitting e Underfitting:\nL'overfitting (sovradattamento) si manifesta con alta accuratezza sul training set ma bassa sul test set, indicando che il modello ha memorizzato i dati di addestramento. L'underfitting (sottoadattamento) produce errori elevati su entrambi. Tecniche contro l'overfitting: regolarizzazione (L1/L2), dropout, early stopping, cross-validation. Contro l'underfitting: modelli più complessi, più feature, più dati."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "medium",
+      "chunk_id": 219,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho un modello di regressione lineare con R² = 0.95 sul training set e R² = 0.40 sul test set. Cosa potrebbe significare?",
+    "answer": "Questa è una situazione molto indicativa. La grande differenza tra le prestazioni su training (0.95) e test (0.40) — cosa ti suggerisce? Sembra che il modello sia troppo aderente ai dati di training. Potrebbe essere che il modello ha troppi parametri rispetto alla quantità di dati? Oppure forse alcune feature sono fortemente correlate al rumore piuttosto che al segnale reale? Quali strategie conosci per diagnosticare e contrastare questo fenomeno?",
+    "ground_truth": "Il gap tra R² training (0.95) e test (0.40) indica overfitting. Possibili rimedi: regolarizzazione, riduzione delle feature, cross-validation, aumento dei dati.",
+    "contexts": [
+      "Diagnosi di Overfitting:\nUn indicatore classico di overfitting è un'ampia discrepanza tra le metriche sul training set e sul test set. Un R² molto alto sul training ma basso sul test suggerisce che il modello ha memorizzato i pattern specifici del training. Soluzioni: regolarizzazione (Ridge, Lasso), feature selection, validazione incrociata, raccolta di più dati, riduzione della complessità del modello."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "medium",
+      "chunk_id": 220,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Perché nelle reti neurali si usa la funzione ReLU invece della sigmoide come funzione di attivazione?",
+    "answer": "La ReLU (Rectified Linear Unit) ha diversi vantaggi rispetto alla sigmoide. Il problema principale della sigmoide è il vanishing gradient: per valori di input molto grandi o molto piccoli, la derivata della sigmoide si avvicina a zero, rallentando drasticamente l'apprendimento nelle reti profonde. La ReLU, definita come max(0, x), ha derivata costante di 1 per input positivi, permettendo ai gradienti di propagarsi senza attenuarsi. Inoltre, la ReLU è computazionalmente molto più efficiente: è una semplice operazione di soglia, mentre la sigmoide richiede esponenziali.",
+    "ground_truth": "ReLU evita il vanishing gradient (derivata costante per x>0), è più efficiente computazionalmente e permette reti più profonde. La sigmoide soffre di saturazione per valori estremi.",
+    "contexts": [
+      "Funzioni di Attivazione:\nLa sigmoide σ(x) = 1/(1+e^(-x)) mappa l'input in (0,1) ma soffre di vanishing gradient: per |x| grande, σ'(x) ≈ 0, rallentando il backpropagation in reti profonde. ReLU f(x) = max(0,x) risolve questo problema: ha derivata 1 per x>0 e 0 per x<0. Varianti: Leaky ReLU (piccola pendenza per x<0), ELU, GELU. ReLU può causare 'dying neurons' se troppi input sono negativi."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "hard",
+      "chunk_id": 221,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho applicato il gradient descent con un learning rate di 10 e la loss continua ad aumentare. Cos'è successo?",
+    "answer": "Il problema è quasi certamente il learning rate troppo alto. Il gradient descent aggiorna i parametri nella direzione opposta al gradiente, moltiplicando per il learning rate. Con un valore di 10, i passi sono enormi: invece di scendere gradualmente verso il minimo della funzione di costo, il modello 'salta oltre' il minimo, finendo in un punto con loss ancora più alta. Ad ogni iterazione successiva, i salti diventano più grandi, causando divergenza. Prova a ridurre il learning rate a valori come 0.01 o 0.001 e osserva se la loss inizia a diminuire.",
+    "ground_truth": "Un learning rate troppo alto causa divergenza: i passi del gradient descent superano il minimo, e la loss diverge. Ridurre il learning rate (es. 0.01, 0.001) risolve il problema.",
+    "contexts": [
+      "Learning Rate nel Gradient Descent:\nIl learning rate (η) controlla la dimensione del passo di aggiornamento dei parametri. Se troppo alto, l'ottimizzazione diverge (la loss aumenta). Se troppo basso, la convergenza è lentissima o il modello si blocca in minimi locali. Strategie: learning rate scheduling (riduzione progressiva), warm-up, algoritmi adattivi (Adam, RMSprop) che regolano il learning rate per ogni parametro."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "debugging",
+      "difficulty": "easy",
+      "chunk_id": 222,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "In una rete TCP/IP, cosa fa il protocollo ARP?",
+    "answer": "Il protocollo ARP (Address Resolution Protocol) serve a tradurre un indirizzo IP in un indirizzo MAC (Media Access Control) all'interno di una rete locale. Quando un dispositivo deve inviare dati a un indirizzo IP nella stessa rete, ma non conosce l'indirizzo MAC corrispondente, invia un messaggio ARP broadcast chiedendo 'chi ha questo IP?'. Il dispositivo con quell'IP risponde con il proprio indirizzo MAC. La mappatura viene memorizzata in una cache ARP locale per evitare richieste ripetute.",
+    "ground_truth": "ARP traduce indirizzi IP in indirizzi MAC nella rete locale tramite richieste broadcast e risposte unicast, mantenendo una cache per efficienza.",
+    "contexts": [
+      "ARP (Address Resolution Protocol):\nARP opera al livello 2/3 dello stack di rete. Quando un host conosce l'IP di destinazione ma non il MAC, invia un ARP Request in broadcast (FF:FF:FF:FF:FF:FF). L'host con l'IP corrispondente risponde con un ARP Reply unicast contenente il suo MAC. Le associazioni IP-MAC vengono memorizzate nella ARP cache con un timeout (tipicamente 20 minuti). Vulnerabilità: ARP spoofing permette attacchi man-in-the-middle."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "factual_conceptual",
+      "difficulty": "medium",
+      "chunk_id": 223,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Penso che in SQL, WHERE e HAVING facciano la stessa cosa. Non è così?",
+    "answer": "Sembra simile, ma c'è una differenza fondamentale legata all'ordine di esecuzione della query. Prova a pensare: in una query con GROUP BY, i dati vengono prima filtrati, poi raggruppati, e infine vengono calcolate le funzioni aggregate. WHERE filtra le righe prima del raggruppamento — puoi usarlo su qualsiasi colonna. HAVING filtra i gruppi dopo l'aggregazione — puoi usarlo su funzioni aggregate come COUNT, SUM, AVG. Riesci a pensare a un esempio in cui WHERE non basterebbe e servirebbe HAVING?",
+    "ground_truth": "WHERE filtra righe prima del GROUP BY; HAVING filtra gruppi dopo il GROUP BY e può usare funzioni aggregate. Non sono intercambiabili.",
+    "contexts": [
+      "WHERE vs HAVING in SQL:\nL'ordine logico di esecuzione di una query SQL è: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. WHERE filtra le righe prima del raggruppamento e non può contenere funzioni aggregate. HAVING filtra i risultati dopo il raggruppamento e lavora su valori aggregati. Esempio: SELECT dept, COUNT(*) FROM emp WHERE salary > 30000 GROUP BY dept HAVING COUNT(*) > 5."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "easy",
+      "chunk_id": 224,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Come funziona il garbage collector in Java?",
+    "answer": "Il garbage collector (GC) in Java gestisce automaticamente la deallocazione della memoria. Quando un oggetto non è più raggiungibile — cioè nessun riferimento attivo punta ad esso — diventa eleggibile per la garbage collection. Il GC più comune utilizza un approccio generazionale: divide lo heap in Young Generation (per oggetti di breve durata) e Old Generation (per oggetti longevi). Gli oggetti nuovi vengono allocati nella Young Generation; se sopravvivono a diversi cicli di GC, vengono promossi alla Old Generation. Questo approccio sfrutta l'osservazione empirica che la maggior parte degli oggetti ha vita breve.",
+    "ground_truth": "Il GC di Java dealloca automaticamente oggetti non raggiungibili. Usa un approccio generazionale (Young/Old Generation) basato sull'ipotesi generazionale: la maggior parte degli oggetti ha vita breve.",
+    "contexts": [
+      "Garbage Collection in Java:\nIl GC automatizza la gestione della memoria deallocando oggetti non più raggiungibili. L'heap è diviso in generazioni: Young (Eden + Survivor) e Old (Tenured). I minor GC ripuliscono la Young Generation frequentemente e velocemente. I major/full GC ripuliscono anche la Old Generation, sono più costosi. Implementazioni: Serial GC, Parallel GC, G1 GC (default da Java 9), ZGC (bassa latenza)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "hard",
+      "chunk_id": 225,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho scritto una query SQL con una subquery correlata e il risultato sembra lento. Perché potrebbe essere inefficiente?",
+    "answer": "Ottima osservazione. Proviamo a ragionare sulla meccanica di una subquery correlata. A differenza di una subquery non correlata (che viene eseguita una sola volta), la subquery correlata fa riferimento a colonne della query esterna, quindi potrebbe essere rieseguita per ogni riga della query esterna. Se la tabella esterna ha N righe e la subquery scansiona M righe ogni volta, quale sarebbe la complessità complessiva? E come potresti riformulare la query per ottenere lo stesso risultato in modo più efficiente?",
+    "ground_truth": "Le subquery correlate vengono eseguite per ogni riga della query esterna (O(N×M)). Riformulare con JOIN o usare EXISTS/IN con subquery non correlate è generalmente più efficiente.",
+    "contexts": [
+      "Subquery Correlate:\nUna subquery correlata referenzia colonne della query esterna e viene potenzialmente ri-eseguita per ogni riga del risultato esterno. Esempio: SELECT * FROM emp e WHERE salary > (SELECT AVG(salary) FROM emp WHERE dept = e.dept). L'ottimizzatore può talvolta trasformarla in un JOIN, ma non sempre. Alternative più efficienti: JOIN espliciti, CTE (Common Table Expressions), viste materializzate."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "hard",
+      "chunk_id": 226,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Secondo me il pattern Singleton è il design pattern migliore perché garantisce una sola istanza della classe.",
+    "answer": "Il Singleton garantisce effettivamente una sola istanza, ma questo non lo rende il pattern 'migliore' in assoluto. Nonostante sia utile in certi scenari (come gestori di connessioni al database o logger), presenta problemi significativi. Introduce stato globale, rendendo il codice difficile da testare unitariamente — come faresti a sostituire un Singleton con un mock nei test? Inoltre, crea un accoppiamento forte tra le classi che lo utilizzano. Molti sviluppatori lo considerano un anti-pattern e preferiscono la dependency injection per gestire istanze condivise.",
+    "ground_truth": "Il Singleton è utile ma non 'il migliore'. Introduce stato globale, complica il testing e crea accoppiamento. La dependency injection è spesso un'alternativa superiore.",
+    "contexts": [
+      "Singleton Pattern:\nIl Singleton garantisce che una classe abbia una sola istanza e fornisce un punto di accesso globale. Implementazione: costruttore privato, metodo statico getInstance(). Criticità: introduce stato globale, rende difficile il testing (non si può sostituire con mock facilmente), viola il Single Responsibility Principle (gestisce sia la logica che il ciclo di vita). Alternative: dependency injection container che gestisce il ciclo di vita degli oggetti."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "misconception",
+      "difficulty": "medium",
+      "chunk_id": 227,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Qual è la differenza tra autenticazione e autorizzazione nella sicurezza informatica?",
+    "answer": "Autenticazione e autorizzazione sono due concetti distinti ma complementari. L'autenticazione risponde alla domanda 'chi sei?' — verifica l'identità dell'utente tramite credenziali (password, token, biometria). L'autorizzazione risponde alla domanda 'cosa puoi fare?' — determina quali risorse e operazioni l'utente autenticato può accedere. L'autenticazione precede sempre l'autorizzazione: prima verifichi chi è l'utente, poi decidi cosa può fare. Un esempio quotidiano: mostrare il badge per entrare in ufficio è autenticazione; avere accesso solo ad alcune stanze è autorizzazione.",
+    "ground_truth": "Autenticazione = verifica dell'identità ('chi sei?'). Autorizzazione = verifica dei permessi ('cosa puoi fare?'). L'autenticazione precede l'autorizzazione.",
+    "contexts": [
+      "Autenticazione vs Autorizzazione:\nAutenticazione (AuthN): processo di verifica dell'identità. Meccanismi: username/password, token JWT, OAuth 2.0, certificati X.509, biometria. Autorizzazione (AuthZ): processo di verifica dei permessi. Modelli: RBAC (Role-Based Access Control), ABAC (Attribute-Based), ACL (Access Control List). In OAuth 2.0, l'autenticazione è gestita dall'Authorization Server e l'autorizzazione dai Resource Server tramite scope e token."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "factual_conceptual",
+      "difficulty": "easy",
+      "chunk_id": 228,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Sto cercando di capire il teorema di Bayes. Se la probabilità che piova è 30% e il mio modello ha il 90% di accuratezza nel prevedere la pioggia, posso dire che se il modello prevede pioggia, c'è il 90% di probabilità che piova davvero?",
+    "answer": "Questo è un errore molto comune e interessante! Stai confondendo due probabilità diverse. Il 90% di accuratezza è P(modello dice pioggia | piove effettivamente). Ma tu vuoi P(piove effettivamente | modello dice pioggia) — che è la probabilità inversa. Il teorema di Bayes ti dice che servono anche la probabilità a priori di pioggia (30%) e il tasso di falsi positivi del modello. Senza queste informazioni, potresti avere il 90% di accuratezza ma la probabilità reale potrebbe essere molto diversa dal 90%.",
+    "ground_truth": "No. P(pioggia|previsione) ≠ P(previsione|pioggia). Il teorema di Bayes richiede anche il tasso base (30%) e i falsi positivi per calcolare la probabilità a posteriori corretta.",
+    "contexts": [
+      "Teorema di Bayes:\nP(A|B) = P(B|A) * P(A) / P(B). Un errore comune è confondere P(A|B) con P(B|A) (fallacia del tasso base). Esempio: un test diagnostico con 95% di sensibilità (P(positivo|malato)) non implica che un risultato positivo significhi 95% di probabilità di essere malato. Se la malattia è rara (P(malato) = 0.1%), P(malato|positivo) potrebbe essere solo ~2%, a causa dell'elevato numero di falsi positivi."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_mistake",
+      "difficulty": "hard",
+      "chunk_id": 229,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Se un algoritmo ha complessità O(2^n), può essere usato per problemi con n=100?",
+    "answer": "Questa è una domanda chiave per capire la trattabilità computazionale. Proviamo a fare un calcolo concreto: 2^100 è circa 1.27 × 10^30. Se il tuo computer esegue un miliardo (10^9) di operazioni al secondo, quanto tempo servirebbe? Riesci a esprimere questo tempo in anni e confrontarlo con l'età dell'universo? Cosa ci dice questo sulla fattibilità pratica degli algoritmi esponenziali per input anche relativamente piccoli?",
+    "ground_truth": "No. 2^100 ≈ 1.27×10^30 operazioni; a 10^9 op/s servirebbero circa 4×10^13 anni (migliaia di volte l'età dell'universo). Gli algoritmi esponenziali sono intrattabili per n > ~40-50.",
+    "contexts": [
+      "Complessità Esponenziale:\nAlgoritmi con complessità O(2^n) o O(n!) sono considerati intrattabili per input grandi. Per n=20, 2^n ≈ 10^6 (fattibile). Per n=40, 2^n ≈ 10^12 (ore). Per n=100, 2^n ≈ 10^30 (impossibile). Questi problemi (es. SAT, Traveling Salesman) rientrano spesso nella classe NP-hard. Approcci pratici: algoritmi approssimati, euristiche, programmazione dinamica (se applicabile)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "medium",
+      "chunk_id": 230,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Cos'è una API RESTful e quali sono i suoi principi fondamentali?",
+    "answer": "Un'API RESTful (Representational State Transfer) è un'interfaccia per la comunicazione tra sistemi che segue i principi architetturali definiti da Roy Fielding. I principi fondamentali sono: statelessness — ogni richiesta contiene tutte le informazioni necessarie, il server non mantiene lo stato della sessione; interfaccia uniforme — le risorse sono identificate da URI e manipolate tramite metodi HTTP standard (GET, POST, PUT, DELETE); rappresentazione delle risorse — i dati vengono scambiati in formati come JSON o XML; e la separazione client-server, che permette l'evoluzione indipendente dei due componenti.",
+    "ground_truth": "REST: architettura per API web basata su statelessness, interfaccia uniforme (HTTP methods + URI), rappresentazione delle risorse (JSON/XML) e separazione client-server.",
+    "contexts": [
+      "Architettura REST:\nREST (Representational State Transfer) è uno stile architetturale per sistemi distribuiti definito da Roy Fielding (2000). Vincoli: 1) Client-Server, 2) Stateless (nessuno stato sessione sul server), 3) Cacheable, 4) Interfaccia uniforme (identificazione risorse via URI, manipolazione tramite rappresentazioni, messaggi auto-descrittivi, HATEOAS), 5) Layered System, 6) Code-on-Demand (opzionale). Metodi HTTP: GET (lettura), POST (creazione), PUT (aggiornamento completo), PATCH (parziale), DELETE."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "easy",
+      "chunk_id": 231,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Ho implementato una classe Stack ma il metodo pop() restituisce sempre None quando lo stack non è vuoto. Cosa potrebbe esserci di sbagliato?",
+    "answer": "Questo è un bug classico! Ci sono alcune cause comuni da verificare. La più frequente è dimenticare il return nel metodo pop(): forse stai rimuovendo l'elemento dalla struttura interna (ad esempio con del o remove) ma non restituisci il valore rimosso. Un'altra possibilità è che stai restituendo l'elemento dall'indice sbagliato — ricorda che lo stack segue la logica LIFO (Last In, First Out), quindi devi restituire e rimuovere l'ultimo elemento inserito. Verifica anche che il metodo push() stia effettivamente aggiungendo gli elementi alla struttura dati interna.",
+    "ground_truth": "Cause probabili: manca il return nel pop(), oppure l'indice di accesso è sbagliato (deve essere l'ultimo elemento per LIFO), oppure push() non aggiunge correttamente gli elementi.",
+    "contexts": [
+      "Implementazione Stack:\nUno stack è una struttura dati LIFO (Last In, First Out). Operazioni principali: push(x) aggiunge x in cima, pop() rimuove e restituisce l'elemento in cima, peek() restituisce l'elemento in cima senza rimuoverlo, isEmpty() verifica se lo stack è vuoto. Implementazione con lista Python: push → append(), pop → pop() (che restituisce e rimuove l'ultimo elemento). Errore comune: usare pop(0) che è FIFO, non LIFO."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "debugging",
+      "difficulty": "easy",
+      "chunk_id": 232,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "language": "it",
+      "disclosure_level": "hints_solution_path"
+    }
+  },
+  {
+    "question": "Se in una rete neurale ho 3 layer nascosti da 100 neuroni ciascuno e uso come input un vettore di dimensione 784, quanti parametri ha il modello?",
+    "answer": "Proviamo a calcolare insieme, layer per layer. Per i parametri di un layer denso, devi considerare sia i pesi delle connessioni sia i bias. Il primo layer connette 784 input a 100 neuroni: quanti pesi servono? E quanti bias? Poi il secondo layer connette 100 neuroni a 100, e così il terzo. Infine, serve anche un layer di output — ma la dimensione dipende dal task. Riesci a impostare il calcolo come somma di (input × output + bias) per ogni layer?",
+    "ground_truth": "Layer 1: 784×100+100=78500. Layer 2: 100×100+100=10100. Layer 3: 100×100+100=10100. Totale (senza output): 98700. Con layer di output di dimensione K: + 100×K+K.",
+    "contexts": [
+      "Conteggio Parametri Reti Neurali:\nIn un layer denso (fully connected), il numero di parametri è: (input_dim × output_dim) + output_dim (i bias). Per una rete con layer [784, 100, 100, 100, 10]: Layer 1: 784×100+100 = 78500. Layer 2: 100×100+100 = 10100. Layer 3: 100×100+100 = 10100. Layer output: 100×10+10 = 1010. Totale: 99710 parametri. I bias sono opzionali ma quasi sempre presenti."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "reasoning_prompt",
+      "difficulty": "medium",
+      "chunk_id": 233,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "language": "it",
+      "disclosure_level": "pure_scaffolding"
+    }
+  },
+  {
+    "question": "Non so come calcolare l'area di un cerchio con raggio r=3 cm. Mi aiuti?",
+    "answer": "L'area del cerchio si calcola con la formula A = π * r^2. Quindi per r=3 hai A = 3.14159 * 3^2 = 28.27 cm^2. Il risultato finale è 28.27 cm².",
+    "ground_truth": "A = π * r^2 = 9π ≈ 28.27 cm².",
+    "contexts": [
+      "Geometria — Area del Cerchio:\nL'area di un cerchio si calcola moltiplicando il pi greco (π ≈ 3.14159) per il quadrato del raggio: A = π * r^2."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_exercise",
+      "difficulty": "easy",
+      "chunk_id": 301,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "full_disclosure",
+      "language": "it"
+    }
+  },
+  {
+    "question": "I get an error in Python: 'TypeError: unsupported operand type(s) for +: int and str'. What is wrong with x = 5 + '10'?",
+    "answer": "The error happens because you are adding an integer 5 to a string '10'. You need to convert '10' to an integer first using int('10'). So the correct code is x = 5 + int('10') which produces x = 15.",
+    "ground_truth": "In Python you cannot sum an int and str directly. Use int('10') to convert string to integer, yielding 15.",
+    "contexts": [
+      "Python Type Conversion:\nPython does not implicitly coerce strings to integers when performing arithmetic addition. You must explicitly convert string values using int() or float() before adding them to numbers."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "debugging",
+      "difficulty": "easy",
+      "chunk_id": 302,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "full_disclosure",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Qual è il risultato di 15% di 200? Non ricordo come si calcola.",
+    "answer": "Devi fare 200 * (15 / 100). 15 diviso 100 fa 0.15, e 200 * 0.15 = 30. La risposta finale è 30.",
+    "ground_truth": "15% di 200 = (15 / 100) * 200 = 30.",
+    "contexts": [
+      "Calcolo delle Percentuali:\nPer trovare la percentuale P% di una quantità Q, si moltiplica Q per la frazione (P / 100)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_exercise",
+      "difficulty": "easy",
+      "chunk_id": 303,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "full_disclosure",
+      "language": "it"
+    }
+  },
+  {
+    "question": "How do I reverse a string 'hello' in Python? Can you give me the exact line of code?",
+    "answer": "You can reverse a string using Python slice syntax. The exact line of code is 'hello'[::-1], which yields the string 'olleh'.",
+    "ground_truth": "Use slicing 'hello'[::-1] to obtain 'olleh'.",
+    "contexts": [
+      "Python String Slicing:\nString slicing syntax sequence[start:stop:step] with a negative step -1 reverses the sequence."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "coding_exercise",
+      "difficulty": "easy",
+      "chunk_id": 304,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "full_disclosure",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Sto cercando di calcolare le radici dell'equazione x^2 - 5x + 6 = 0. Mi sono bloccato sul calcolo del delta.",
+    "answer": "Il delta b^2 - 4ac equivale a (-5)^2 - 4(1)(6) = 25 - 24 = 1. Quindi il valore del delta è esattamente 1. Ora sostituisci Δ=1 nella formula (-b ± √Δ) / 2a per ricavare x1 e x2.",
+    "ground_truth": "Δ = 1; radici x1 = 2, x2 = 3.",
+    "contexts": [
+      "Equazioni di Secondo Grado:\nUn'equazione ax^2 + bx + c = 0 ha discriminante Δ = b^2 - 4ac. Se Δ > 0, ha due soluzioni reali distinte x = (-b ± √Δ) / 2a."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_exercise",
+      "difficulty": "medium",
+      "chunk_id": 305,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "disclosure_level": "partial_disclosure",
+      "language": "it"
+    }
+  },
+  {
+    "question": "How do I calculate the derivative of f(x) = x^3 * sin(x)? I tried using only the power rule.",
+    "answer": "Using only the power rule is incorrect because f(x) is a product of two functions x^3 and sin(x). Applying the product rule (u'v + uv') with u = x^3 (so u' = 3x^2) and v = sin(x) (so v' = cos(x)), the product rule gives 3x^2*sin(x) + x^3*cos(x).",
+    "ground_truth": "f'(x) = 3x^2 sin(x) + x^3 cos(x) via product rule.",
+    "contexts": [
+      "Product Rule in Calculus:\nThe derivative of a product of two differentiable functions d/dx [u(x)v(x)] = u'(x)v(x) + u(x)v'(x)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_exercise",
+      "difficulty": "medium",
+      "chunk_id": 306,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "disclosure_level": "partial_disclosure",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Come posso trovare la mediana dell'array non ordinato [7, 2, 9, 1, 5]?",
+    "answer": "Prima di tutto devi ordinare l'array in ordine crescente: l'array ordinato diventa [1, 2, 5, 7, 9]. Siccome ci sono 5 elementi (un numero dispari), la mediana è l'elemento in posizione centrale, cioè 5.",
+    "ground_truth": "Array ordinato: [1, 2, 5, 7, 9]. La mediana è il valore centrale 5.",
+    "contexts": [
+      "Statistica descrittiva — Mediana:\nLa mediana è il valore centrale di un insieme di dati ordinato. Per un numero N dispari di elementi, la mediana è l'elemento in posizione (N+1)/2 dopo l'ordinamento."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "procedural",
+      "difficulty": "easy",
+      "chunk_id": 307,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "partial_disclosure",
+      "language": "it"
+    }
+  },
+  {
+    "question": "Come posso verificare se una stringa è un palindromo in Python senza usare librerie esterne?",
+    "answer": "Pensa a cosa definisce una stringa palindroma: la sequenza di caratteri letta da sinistra verso destra deve coincidere esattamente con quella letta da destra verso sinistra. In Python, puoi ottenere la versione invertita di una stringa tramite lo slicing . Prova a confrontare la stringa originale con la sua versione invertita usando un operatore logico di uguaglianza ().",
+    "ground_truth": "Verificare .",
+    "contexts": [
+      "Stringhe in Python — Palindromi:\nUn palindromo è una parola che si legge allo stesso modo nei due sensi. In Python, lo slicing  inverte la stringa."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "coding_exercise",
+      "difficulty": "easy",
+      "chunk_id": 308,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "disclosure_level": "hints_solution_path",
+      "language": "it"
+    }
+  },
+  {
+    "question": "I am trying to solve the equation x^2 - 4 = 0 but I forgot how to factor a difference of squares.",
+    "answer": "Recall the algebraic identity for the difference of squares: a^2 - b^2 = (a - b)(a + b). Notice that 4 is a perfect square equal to 2^2. Try rewriting x^2 - 2^2 into two factors set to zero, and solve each factor for x.",
+    "ground_truth": "(x - 2)(x + 2) = 0, so x = 2 or x = -2.",
+    "contexts": [
+      "Algebra — Difference of Squares:\nThe expression a^2 - b^2 factors into (a - b)(a + b). Setting factors equal to zero yields the roots."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "math_exercise",
+      "difficulty": "medium",
+      "chunk_id": 309,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "disclosure_level": "hints_solution_path",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Come calcolo la media ponderata di tre esami con voti 28 (peso 6), 30 (peso 9) e 24 (peso 5)?",
+    "answer": "Per calcolare la media ponderata, moltiplica ciascun voto per il rispettivo peso/credito per ottenere i prodotti parziali, poi somma questi prodotti. Infine, dividi il totale ottenuto per la somma di tutti i pesi (6 + 9 + 5). Prova a svolgere le tre moltiplicazioni e la divisione finale.",
+    "ground_truth": "(28*6 + 30*9 + 24*5) / (6+9+5) = (168 + 270 + 120) / 20 = 558 / 20 = 27.9.",
+    "contexts": [
+      "Statistica — Media Ponderata:\nLa media ponderata si ottiene dividendo la somma dei prodotti (voto × peso) per la somma dei pesi totali: M_p = ∑(v_i * p_i) / ∑(p_i)."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "procedural",
+      "difficulty": "medium",
+      "chunk_id": 310,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "disclosure_level": "hints_solution_path",
+      "language": "it"
+    }
+  },
+  {
+    "question": "How do I implement Depth-First Search (DFS) iteratively instead of using recursion?",
+    "answer": "When using recursion, the call stack implicitly tracks nodes to visit. To convert this to an iterative approach, you need an explicit data structure that mimics that same Last-In, First-Out (LIFO) behavior. Think about which standard linear data structure allows you to push unvisited neighbors and pop the most recent node. How would you update your loop with it?",
+    "ground_truth": "Use an explicit Stack data structure.",
+    "contexts": [
+      "Graph Algorithms — Iterative DFS:\nIterative Depth-First Search uses an explicit stack to store nodes awaiting processing, replacing the function call stack of recursive DFS."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "medium",
+      "chunk_id": 311,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "disclosure_level": "hints_solution_path",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Il mio programma Python va in ciclo infinito quando passo un array vuoto []. Come mai?",
+    "answer": "Cosa fa la prima riga della tua funzione quando riceve in ingresso un array vuoto? Hai definito un controllo preliminare sul numero di elementi prima di accedere agli indici dell'array o di avviare il ciclo di scansione?",
+    "ground_truth": "Manca il controllo sulla lunghezza dell'array (caso limite per array vuoto).",
+    "contexts": [
+      "Debugging e Case Limite:\nI cicli infiniti o gli errori di indicizzazione spesso derivano dal mancato controllo sui casi d'angolo (corner cases), come array vuoti o puntatori nulli."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "debugging",
+      "difficulty": "easy",
+      "chunk_id": 312,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "disclosure_level": "pure_scaffolding",
+      "language": "it"
+    }
+  },
+  {
+    "question": "Why does my binary search function return -1 even though the number 7 is present inside the array [5, 2, 7, 1, 9]?",
+    "answer": "Take a close look at the input array you provided: [5, 2, 7, 1, 9]. What strict prerequisite must any array satisfy before binary search can operate correctly on it?",
+    "ground_truth": "The array must be sorted in ascending order prior to binary search.",
+    "contexts": [
+      "Binary Search Prerequisites:\nBinary search relies on maintaining an ordered search space. Operating on an unsorted array violates the invariant and yields incorrect results or failures."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "debugging",
+      "difficulty": "easy",
+      "chunk_id": 313,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "disclosure_level": "pure_scaffolding",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Ho provato a fare 0.1 + 0.2 in Python e la console restituisce 0.30000000000000004. C'è un bug nell'interprete?",
+    "answer": "Come vengono memorizzati i numeri decimali nella memoria binaria di un calcolatore? Riesci a esprimere le frazioni 1/10 e 2/10 in base 2 usando un numero finito di bit, oppure si generano sequenze periodiche?",
+    "ground_truth": "Rappresentazione binaria IEEE 754 dei numeri floating point.",
+    "contexts": [
+      "Rappresentazione Floating Point IEEE 754:\nMolti numeri decimali non hanno una rappresentazione finita in binario, creando piccolissime imprecisioni aritmetiche nelle operazioni in virgola mobile."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "misconception",
+      "difficulty": "medium",
+      "chunk_id": 314,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "disclosure_level": "pure_scaffolding",
+      "language": "it"
+    }
+  },
+  {
+    "question": "I am confused between Big-O and Big-Omega notation in algorithm analysis. Aren't they the same?",
+    "answer": "Think about best-case and worst-case execution scenarios for a search algorithm. Which notation bounds the execution time from above as a worst-case guarantee, and which notation bounds it from below as a best-case baseline? How would you frame that distinction?",
+    "ground_truth": "Big-O is the upper bound (worst case); Big-Omega is the lower bound (best case).",
+    "contexts": [
+      "Asymptotic Notation:\nBig-O O(f(n)) characterizes the asymptotic upper bound of runtime complexity. Big-Omega Ω(f(n)) characterizes the asymptotic lower bound."
+    ],
+    "metadata": {
+      "source": "synthetic",
+      "question_type": "conceptual_explanation",
+      "difficulty": "medium",
+      "chunk_id": 315,
+      "is_synthetic": true,
+      "target_pedagogical_state": "socratic_assessment",
+      "disclosure_level": "pure_scaffolding",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Come posso ordinare una lista di numeri in Python?",
+    "answer": "La pizza Margherita è nata a Napoli nel 1889 per omaggiare la Regina Margherita di Savoia.",
+    "ground_truth": "Utilizzare lista.sort() o la funzione built-in sorted(lista).",
+    "contexts": [
+      "Ordinamento in Python:\nLa funzione sorted() accetta un iterabile e restituisce una nuova lista ordinata. Il metodo list.sort() ordina la lista in-place."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_irrelevant",
+      "difficulty": "easy",
+      "chunk_id": 401,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "full_disclosure",
+      "language": "it"
+    }
+  },
+  {
+    "question": "How do I calculate the average of numbers [10, 20, 30] in Python?",
+    "answer": "To find the average, multiply all numbers together: 10 * 20 * 30 = 6000. So the average of [10, 20, 30] is 6000.",
+    "ground_truth": "Average is the sum divided by count: (10 + 20 + 30) / 3 = 20.",
+    "contexts": [
+      "Basic Statistics:\nThe arithmetic mean (average) is calculated by summing all values in a dataset and dividing by the total number of values."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_incorrect",
+      "difficulty": "easy",
+      "chunk_id": 402,
+      "is_synthetic": true,
+      "target_pedagogical_state": "direct_answer",
+      "disclosure_level": "full_disclosure",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Il mio codice lancia RecursionError: maximum recursion depth exceeded. Come lo risolvo?",
+    "answer": "Devi aggiustare il codice e fare attenzione alle funzioni nel tuo programma. Riprova a eseguirlo dopo aver cambiato alcune cose.",
+    "ground_truth": "Definire un caso base valido per interrompere le chiamate ricorsive.",
+    "contexts": [
+      "Debugging Recursione:\nUn RecursionError si verifica quando una funzione ricorsiva non raggiunge un caso base e supera il limite massimo dello stack di chiamate."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_vague",
+      "difficulty": "medium",
+      "chunk_id": 403,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "disclosure_level": "pure_scaffolding",
+      "language": "it"
+    }
+  },
+  {
+    "question": "I am getting a NullPointerException on line 42 when calling user.getName(). Why?",
+    "answer": "Null pointers are very common in Java programming. Just search Google for the error message or ask a classmate to read your code for you.",
+    "ground_truth": "The variable `user` is null prior to calling `.getName()`. Ensure `user` is instantiated.",
+    "contexts": [
+      "Java Exceptions:\nNullPointerException is thrown when an application attempts to use an object reference that has a null value."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_dismissive",
+      "difficulty": "easy",
+      "chunk_id": 404,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "disclosure_level": "pure_scaffolding",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Qual è la differenza tra GET e POST nelle richieste HTTP?",
+    "answer": "GET è per prendere le cose e POST è per inviare le cose. Usali quando serve.",
+    "ground_truth": "GET trasmette dati nella query string ed è idoneo per recupero dati; POST invia dati nel body della richiesta per la creazione/modifica.",
+    "contexts": [
+      "Protocollo HTTP:\nI metodi HTTP definiscono l'azione da eseguire. GET è sicuro e idempotente. POST non è idempotente e veicola payload nel corpo della richiesta."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_superficial",
+      "difficulty": "easy",
+      "chunk_id": 405,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "disclosure_level": "hints_solution_path",
+      "language": "it"
+    }
+  },
+  {
+    "question": "How can I read a text file line by line in Python?",
+    "answer": "Open the file using open('file.txt') and then use a for line in file loop to process each line.",
+    "ground_truth": "Use `with open(filepath, 'r') as f: for line in f:` to ensure file is properly closed.",
+    "contexts": [
+      "File I/O in Python:\nThe recommended idiom for opening files in Python is the `with` statement context manager, which handles resource cleanup automatically."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_basic",
+      "difficulty": "easy",
+      "chunk_id": 406,
+      "is_synthetic": true,
+      "target_pedagogical_state": "concept_teaching",
+      "disclosure_level": "hints_solution_path",
+      "language": "en"
+    }
+  },
+  {
+    "question": "Ho scritto `if x = 5:` in Python e mi dà SyntaxError. Perché?",
+    "answer": "Hai usato `=` che è l'operatore di assegnamento invece di `==` che è l'operatore di confronto.",
+    "ground_truth": "In Python l'uguaglianza si verifica con `==`. L'assegnamento `=` non è consentito nelle intestazioni `if`.",
+    "contexts": [
+      "Sintassi Python — Operatori:\nL'operatore `=` assegna un valore a una variabile, mentre `==` confronta due valori per verificare l'uguaglianza logica."
+    ],
+    "metadata": {
+      "source": "synthetic_adversarial",
+      "question_type": "adversarial_direct_correction",
+      "difficulty": "easy",
+      "chunk_id": 407,
+      "is_synthetic": true,
+      "target_pedagogical_state": "error_remediation",
+      "disclosure_level": "full_disclosure",
+      "language": "it"
+    }
+  }
+]

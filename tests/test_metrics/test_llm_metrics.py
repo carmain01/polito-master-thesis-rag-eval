@@ -50,7 +50,7 @@ async def test_relevance(mock_llm, sample):
     metric = AnswerRelevance(mock_llm)
     result = await metric.score(sample)
 
-    assert result.metric_name == "relevance"
+    assert result.metric_name == "answer_relevance"
     assert result.score == 1.0
     assert result.reason == "Directly answers the question."
 

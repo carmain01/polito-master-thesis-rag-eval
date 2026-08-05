@@ -65,3 +65,14 @@ async def test_evaluator_error_handling(samples, tmp_path):
         assert res.metric_name == "good"
     assert "good" in report.summary
     assert "bad" not in report.summary
+
+
+def test_evaluator_sync(samples, tmp_path):
+    metric = DummyMetric()
+    evaluator = Evaluator(metrics=[metric], cache_dir=str(tmp_path))
+
+    report = evaluator.evaluate(samples, batch_size=2, max_concurrency=2)
+
+    assert len(report.results) == 5
+    assert report.summary["dummy"] == 1.0
+
