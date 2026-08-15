@@ -171,15 +171,15 @@ class TestStateWeights:
 
     def test_state_a_weights(self):
         pes = _build_pes(state_code="A")
-        assert pes._resolve_weights("A") == (0.40, 0.40, 0.20)
+        assert pes._resolve_weights("A") == (0.35, 0.35, 0.30)
 
     def test_state_b_weights(self):
         pes = _build_pes(state_code="B")
-        assert pes._resolve_weights("B") == (0.20, 0.30, 0.50)
+        assert pes._resolve_weights("B") == (0.00, 0.30, 0.70)
 
     def test_state_c_weights(self):
         pes = _build_pes(state_code="C")
-        assert pes._resolve_weights("C") == (0.15, 0.25, 0.60)
+        assert pes._resolve_weights("C") == (0.00, 0.25, 0.75)
 
     def test_unknown_state_fallback(self):
         pes = _build_pes(state_code="X")
@@ -279,14 +279,14 @@ class TestPESScoring:
         pes = _build_pes(m1=0.9, m2=0.8, m3=0.7, state_code="A", faithfulness_score=0.9)
         result = await pes.score(sample)
 
-        # State A: w1=0.40, w2=0.40, w3=0.20
-        expected = PES._weighted_geometric_mean(0.9, 0.8, 0.7, 0.40, 0.40, 0.20)
+        # State A: w1=0.35, w2=0.35, w3=0.30
+        expected = PES._weighted_geometric_mean(0.9, 0.8, 0.7, 0.35, 0.35, 0.30)
         expected = round(expected, 4)
 
         assert result.metric_name == "pes"
         assert result.score == expected
         assert result.metadata["state"]["code"] == "A"
-        assert result.metadata["weights"] == {"w1_uptake": 0.40, "w2_linguistic": 0.40, "w3_disclosure": 0.20}
+        assert result.metadata["weights"] == {"w1_uptake": 0.35, "w2_linguistic": 0.35, "w3_disclosure": 0.30}
 
     @pytest.mark.asyncio
     async def test_score_with_state_b(self, sample):
@@ -294,7 +294,7 @@ class TestPESScoring:
         pes = _build_pes(m1=1.0, m2=1.0, m3=0.1, state_code="B", faithfulness_score=0.9)
         result = await pes.score(sample)
 
-        # State B: w1=0.20, w2=0.30, w3=0.50  → M3 heavily weighted
+        # State B: w1=0.00, w2=0.30, w3=0.70  → M3 heavily weighted
         assert result.score < 0.5  # Geometric mean penalises the bottleneck
         assert result.metadata["state"]["code"] == "B"
 
@@ -304,12 +304,12 @@ class TestPESScoring:
         pes = _build_pes(m1=0.5, m2=0.5, m3=1.0, state_code="C", faithfulness_score=0.9)
         result = await pes.score(sample)
 
-        # State C: w1=0.15, w2=0.25, w3=0.60
+        # State C: w1=0.00, w2=0.25, w3=0.75
         # M3=1.0 is heavily weighted, so the score should be pulled up
-        expected = PES._weighted_geometric_mean(0.5, 0.5, 1.0, 0.15, 0.25, 0.60)
+        expected = PES._weighted_geometric_mean(0.5, 0.5, 1.0, 0.00, 0.25, 0.75)
         expected = round(expected, 4)
         assert result.score == expected
-        assert result.score > 0.6  # M3=1.0 with w3=0.60 should dominate
+        assert result.score > 0.6  # M3=1.0 with w3=0.75 should dominate
 
     @pytest.mark.asyncio
     async def test_all_perfect_scores(self, sample):
@@ -368,18 +368,18 @@ class TestThesisExample:
     async def test_geometric_vs_arithmetic_penalisation(self, sample):
         """M1=1.0, M2=1.0, M3=0.1 with State B weights.
 
-        Arithmetic mean ≈ 0.55 (weighted: 0.20*1 + 0.30*1 + 0.50*0.1)
-        Geometric mean should be ≈ 0.316, dramatically lower.
+        Arithmetic mean ≈ 0.37 (weighted: 0.00*1 + 0.30*1 + 0.70*0.1)
+        Geometric mean should be ≈ 0.200, dramatically lower.
         """
         pes = _build_pes(m1=1.0, m2=1.0, m3=0.1, state_code="B", faithfulness_score=0.9)
         result = await pes.score(sample)
 
-        arithmetic = 0.20 * 1.0 + 0.30 * 1.0 + 0.50 * 0.1
+        arithmetic = 0.00 * 1.0 + 0.30 * 1.0 + 0.70 * 0.1
         assert result.score < arithmetic, (
             f"Geometric mean ({result.score}) should be lower than "
             f"arithmetic mean ({arithmetic})"
         )
         # The geometric mean specifically:
-        # exp( (0.2*ln(1) + 0.3*ln(1) + 0.5*ln(0.1)) / 1.0 )
-        # = exp( 0.5 * (-2.3026) ) = exp(-1.1513) ≈ 0.3162
-        assert abs(result.score - 0.3162) < 0.01
+        # exp( (0.0*ln(1) + 0.3*ln(1) + 0.7*ln(0.1)) / 1.0 )
+        # = exp( 0.7 * (-2.3026) ) = exp(-1.6118) ≈ 0.1995
+        assert abs(result.score - 0.1995) < 0.01

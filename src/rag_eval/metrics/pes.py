@@ -25,11 +25,11 @@ The weights ``w_i(S)`` shift based on the pedagogical intent detected by the
 +-------+-----------------------+------+------+------+
 | State | Label                 |  w1  |  w2  |  w3  |
 +=======+=======================+======+======+======+
-|   A   | Concept Teaching      | 0.40 | 0.40 | 0.20 |
+|   A   | Concept Teaching      | 0.35 | 0.35 | 0.30 |
 +-------+-----------------------+------+------+------+
-|   B   | Error Remediation     | 0.20 | 0.30 | 0.50 |
+|   B   | Error Remediation     | 0.00 | 0.30 | 0.70 |
 +-------+-----------------------+------+------+------+
-|   C   | Socratic Assessment   | 0.15 | 0.25 | 0.60 |
+|   C   | Socratic Assessment   | 0.00 | 0.25 | 0.75 |
 +-------+-----------------------+------+------+------+
 | other | Default / Unknown     | 0.33 | 0.33 | 0.34 |
 +-------+-----------------------+------+------+------+
@@ -70,9 +70,9 @@ _EPSILON: float = 1e-6
 # Keys are the single-character state codes emitted by the State classifier.
 # Values are (w1_uptake, w2_linguistic, w3_disclosure) tuples.
 _STATE_WEIGHTS: dict[str, tuple[float, float, float]] = {
-    "A": (0.40, 0.40, 0.20),  # Concept Teaching
-    "B": (0.20, 0.30, 0.50),  # Error Remediation
-    "C": (0.15, 0.25, 0.60),  # Socratic Assessment
+    "A": (0.35, 0.35, 0.30),  # Concept Teaching
+    "B": (0.00, 0.30, 0.70),  # Error Remediation
+    "C": (0.00, 0.25, 0.75),  # Socratic Assessment
 }
 
 _DEFAULT_WEIGHTS: tuple[float, float, float] = (0.33, 0.33, 0.34)
