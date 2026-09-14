@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 from rich.progress import (
@@ -32,11 +32,13 @@ class Evaluator:
         metrics: Sequence[BaseMetric],
         config: EvalConfig | None = None,
         cache_dir: str = ".rag_eval_cache",
+        on_batch_complete: Callable[[EvalReport, int], None] | None = None,
     ) -> None:
         self.metrics = metrics
         self.config = config or EvalConfig()
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.on_batch_complete = on_batch_complete
 
     def _save_checkpoint(self, report: EvalReport, batch_idx: int) -> None:
         """Save an intermediate checkpoint of the report."""
@@ -68,6 +70,7 @@ class Evaluator:
         samples: Sequence[TestSample],
         batch_size: int = 50,
         max_concurrency: int = 10,
+        start_index: int = 0,
     ) -> EvalReport:
         """Run all metrics on all samples asynchronously with batching and progress tracking."""
         report = EvalReport()
@@ -84,7 +87,7 @@ class Evaluator:
             task_id = progress.add_task("[cyan]Evaluating...", total=total_tasks)
 
             # Process in batches
-            enumerated_samples = list(enumerate(samples))
+            enumerated_samples = [(idx + start_index, s) for idx, s in enumerate(samples)]
             for i in range(0, len(enumerated_samples), batch_size):
                 batch_samples = enumerated_samples[i : i + batch_size]
 
@@ -100,7 +103,13 @@ class Evaluator:
                         report.add_result(res)
                     progress.advance(task_id)
 
-                self._save_checkpoint(report, i // batch_size)
+                batch_num = (start_index + i) // batch_size
+                self._save_checkpoint(report, batch_num)
+                if self.on_batch_complete is not None:
+                    try:
+                        self.on_batch_complete(report, batch_num)
+                    except Exception as e:
+                        logger.warning(f"on_batch_complete callback failed: {e}")
 
         report.compute_summary()
         self._aggregate_costs(report)
@@ -142,6 +151,7 @@ class Evaluator:
         samples: Sequence[TestSample],
         batch_size: int = 50,
         max_concurrency: int = 10,
+        start_index: int = 0,
     ) -> EvalReport:
         """Synchronous wrapper for evaluate_async.
 
@@ -158,4 +168,4 @@ class Evaluator:
                 "Cannot call evaluate() from within a running event loop. "
                 "Use 'await evaluator.evaluate_async(...)' instead."
             )
-        return asyncio.run(self.evaluate_async(samples, batch_size, max_concurrency))
+        return asyncio.run(self.evaluate_async(samples, batch_size, max_concurrency, start_index=start_index))

@@ -4,21 +4,26 @@
 
 ### 1.1 Purpose
 
-This framework provides a **modular, extensible toolkit for evaluating Retrieval-Augmented Generation (RAG) systems**. It is designed to support experimental research by offering a unified interface for measuring the quality of both the *retrieval* and *generation* stages of a RAG pipeline across a wide range of metrics, datasets, and LLM providers.
+The **`rag_eval`** framework provides a **modular, extensible, and mathematically grounded toolkit for evaluating Retrieval-Augmented Generation (RAG) systems**. Designed to support rigorous academic research and enterprise audit, it unifies the measurement of retrieval precision, factual grounding, and answer quality across multiple LLM providers, benchmark datasets, and evaluation metrics.
 
-### 1.2 Context
+Beyond standard factual evaluation, the framework introduces the **Pedagogical Evaluation Score (PES)**, a novel composite metric specifically designed to evaluate conversational AI tutors, socratic scaffolding, and educational dialogue systems in e-learning environments.
 
-The framework is built as part of a **thesis project** focused on evaluating and comparing RAG systems. It serves as the experimental backbone — enabling reproducible evaluations, side-by-side configuration comparisons, and automated report generation. While it supports the thesis research, the framework is designed to be general-purpose and reusable.
+### 1.2 Context & Thesis Background
 
-### 1.3 Core Principles
+Developed as part of a Master's Thesis in Computer Engineering at Politecnico di Torino, the framework serves as the experimental backbone for:
+- Evaluating enterprise RAG deployments (such as the United Nations System Staff College - UNSSC educational platform).
+- Validating the pedagogical quality of LLMs in tutorial interactions.
+- Benchmarking state-of-the-art models (OpenAI GPT-4o, Azure GPT-5-nano reasoning models, Meta LLaMA 3.1/3.2, Qwen 2.5) on real-world and synthetic datasets.
+
+### 1.3 Core Architectural Principles
 
 | Principle | Description |
 |---|---|
-| **Modularity** | Every component (metrics, datasets, LLM clients, reporters) is a self-contained, swappable module |
-| **Extensibility** | Adding a new metric or LLM provider requires implementing a single abstract class |
-| **Reproducibility** | All evaluation runs are fully configured via YAML files and produce deterministic, exportable results |
-| **Async-first** | Built on Python's `asyncio` for concurrent LLM calls and efficient batch evaluation |
-| **Multi-provider** | Supports OpenAI, Anthropic, Google, and local models (Ollama, vLLM) as LLM judges |
+| **Modularity** | Every component (metrics, datasets, LLM clients, reports) is a self-contained, swappable module registered in dynamic registries. |
+| **Pedagogical Awareness** | Native support for multi-turn pedagogical evaluation (scaffolding vs. spoiling, uptake, readability, and socratic dialogue). |
+| **Reproducibility** | Full configuration via YAML/CLI with deterministic seed controls, structured JSON schemas, and audit logs. |
+| **Fault Tolerance & Checkpointing** | Automatic batch checkpointing allowing long evaluation runs to be safely interrupted and resumed without data loss. |
+| **Multi-Provider & Async-First** | Built on Python's `asyncio` with concurrent execution across commercial cloud engines (Azure, OpenAI, Anthropic, Google) and local runtimes (Ollama, vLLM). |
 
 ---
 
@@ -27,99 +32,96 @@ The framework is built as part of a **thesis project** focused on evaluating and
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
 │                              User Interface                              │
-│                          (Python API + CLI)                              │
+│                 (Python API + CLI: `rag-eval evaluate / generate`)        │
 └────────────────────────────────┬─────────────────────────────────────────┘
                                  │
                                  ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│                         Pipeline / Evaluator                             │
+│                         Pipeline / Evaluator Layer                       │
 │                                                                          │
-│  ┌──────────────┐    ┌──────────────┐    ┌───────────────┐              │
-│  │   Datasets    │───▶│   Evaluator   │───▶│    Reports     │              │
-│  │   (loader,    │    │  (orchestrate │    │  (JSON, HTML,  │              │
-│  │   synthetic)  │    │   metrics)    │    │   console)     │              │
-│  └──────────────┘    └──────┬───────┘    └───────────────┘              │
-│                             │                                            │
-│                     ┌───────┴────────┐                                   │
-│                     │    Metrics      │                                   │
-│                     │                │                                   │
-│                     │  ┌───────────┐ │                                   │
-│                     │  │ LLM-Judge │ │                                   │
-│                     │  ├───────────┤ │                                   │
-│                     │  │ NLP-Based │ │                                   │
-│                     │  ├───────────┤ │                                   │
-│                     │  │ Embedding │ │                                   │
-│                     │  └───────────┘ │                                   │
-│                     └───────┬────────┘                                   │
-│                             │                                            │
-│                     ┌───────┴────────┐                                   │
-│                     │     Utils       │                                   │
-│                     │  (LLM client,  │                                   │
-│                     │   embeddings,  │                                   │
-│                     │   text proc.)  │                                   │
-│                     └────────────────┘                                   │
+│  ┌──────────────┐    ┌────────────────────────────────┐    ┌───────────┐ │
+│  │   Datasets   │───▶│   Evaluator & Batch Runner     │───▶│  Reports  │ │
+│  │ (MathDial,   │    │  (Concurrency, Checkpointing,  │    │  (HTML,   │ │
+│  │  MR-Bench,   │    │   DiskCache, Error Handling)   │    │   JSON,   │ │
+│  │  Golden JSON)│    └──────────────┬─────────────────┘    │   CSV)    │ │
+│  └──────────────┘                   │                      └───────────┘ │
+│                                     │                                    │
+│                 ┌───────────────────┴───────────────────┐                │
+│                 │            Metrics Engine             │                │
+│                 │                                       │                │
+│                 │  ┌─────────────────────────────────┐  │                │
+│                 │  │ PES Framework (Pedagogical)     │  │                │
+│                 │  │  • Level 0: Faithfulness Gate   │  │                │
+│                 │  │  • Level 1: Pedagogical State   │  │                │
+│                 │  │  • Level 2: Submetrics (M1..M3) │  │                │
+│                 │  │  • Level 3: Dynamic GeoMean     │  │                │
+│                 │  ├─────────────────────────────────┤  │                │
+│                 │  │ RAG Triad (LLM-as-a-Judge)      │  │                │
+│                 │  │  • Faithfulness, Relevance      │  │                │
+│                 │  │  • Context Precision / Recall   │  │                │
+│                 │  ├─────────────────────────────────┤  │                │
+│                 │  │ Classical NLP & Embedding       │  │                │
+│                 │  │  • BLEU, ROUGE, F1, Exact Match │  │                │
+│                 │  │  • BERTScore, Cosine Similarity │  │                │
+│                 │  └─────────────────────────────────┘  │                │
+│                 └───────────────────┬───────────────────┘                │
+│                                     │                                    │
+│                 ┌───────────────────┴───────────────────┐                │
+│                 │           Cross-Cutting Utils         │                │
+│                 │  ┌─────────────────────────────────┐  │                │
+│                 │  │ Multi-Provider LLM Client       │  │                │
+│                 │  │ (Azure, OpenAI, Claude, Gemini, │  │                │
+│                 │  │  Ollama, vLLM with Reasoning)   │  │                │
+│                 │  ├─────────────────────────────────┤  │                │
+│                 │  │ Embeddings & Text Processing    │  │                │
+│                 │  │ (sentence-transformers, MiniLM) │  │                │
+│                 │  └─────────────────────────────────┘  │                │
+│                 └───────────────────────────────────────┘                │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
-
-### 2.1 Layer Summary
-
-| Layer | Package | Responsibility |
-|---|---|---|
-| **Interface** | CLI + Python API | Entry points for users: run evaluations, configure settings, view results |
-| **Pipeline** | `rag_eval.pipeline` | Orchestrates the full evaluation flow: load data → run metrics → produce reports |
-| **Metrics** | `rag_eval.metrics` | Implements individual evaluation metrics (LLM-judge, NLP, embedding-based) |
-| **Datasets** | `rag_eval.datasets` | Load/validate datasets and generate synthetic evaluation data |
-| **Reports** | `rag_eval.reports` | Aggregate results and export in various formats |
-| **Core** | `rag_eval.core` | Shared data models (`TestSample`, `EvalResult`) and configuration |
-| **Utils** | `rag_eval.utils` | Cross-cutting utilities: LLM clients, embedding clients, text processing |
 
 ---
 
 ## 3. Core Data Models
 
-All data flows through a small set of **Pydantic models** defined in `rag_eval.core.types`:
+The framework relies on strict Pydantic v2 schemas defined in `rag_eval.core.types`:
 
-### 3.1 TestSample
-
-Represents a single evaluation instance — the atomic unit of evaluation.
-
+### 3.1 `TestSample`
+Represents a single evaluation unit (query, answer, context, references, and metadata):
 ```python
 class TestSample(BaseModel):
-    question: str           # The user query
-    answer: str             # Generated answer from the RAG system
-    ground_truth: str       # Reference / expected answer
-    contexts: list[str]     # Retrieved context chunks
-    metadata: dict          # Arbitrary metadata (source, config, timestamps...)
+    id: str | None = None
+    question: str                  # User query or student prompt
+    answer: str                    # Answer generated by the RAG system
+    ground_truth: str | None       # Expected reference answer or pedagogical target
+    contexts: list[str]            # Retrieved context chunks
+    metadata: dict[str, Any] = {}  # Source document, difficulty, pedagogical state, tokens
 ```
 
-### 3.2 EvalResult
-
-The output of running a single metric on a single sample.
-
+### 3.2 `EvalResult`
+The output of a single metric evaluated on a single sample:
 ```python
 class EvalResult(BaseModel):
-    metric_name: str        # e.g. "faithfulness"
-    score: float            # Normalized score in [0.0, 1.0]
-    reason: str             # LLM-generated explanation for the score
-    metadata: dict          # Additional info (token counts, latency, etc.)
+    metric_name: str               # e.g., "pes", "faithfulness", "uptake"
+    score: float                   # Normalized score in [0.0, 1.0]
+    reason: str | None = None      # Qualitative explanation generated by the LLM judge
+    metadata: dict[str, Any] = {}  # Sub-scores, token counts, latency, weights used
 ```
 
-### 3.3 EvalReport
-
-Aggregated results across all samples and metrics, with summary statistics.
-
+### 3.3 `EvalReport`
+Aggregated results across the entire dataset with statistical rollups:
 ```python
 class EvalReport(BaseModel):
     results: list[EvalResult]
-    summary: dict[str, float]    # metric_name → average score
+    summary: dict[str, float]      # metric_name -> mean score
+    metadata: dict[str, Any] = {}  # Execution duration, model name, provider, timestamp
 ```
 
 ---
 
-## 4. Metrics System
+## 4. The Metrics System
 
-Metrics are the heart of the framework. Every metric extends `BaseMetric`:
-
+Metrics extend the abstract base class `BaseMetric`:
 ```python
 class BaseMetric(ABC):
     @property
@@ -132,308 +134,182 @@ class BaseMetric(ABC):
     async def score_batch(self, samples: list[TestSample]) -> list[EvalResult]: ...
 ```
 
-### 4.1 Metric Categories
+### 4.1 The Pedagogical Evaluation Score (PES) Framework
 
-The framework provides three categories of metrics:
+The **PES** is a multi-tier composite metric designed to assess whether a conversational RAG system acts as an effective tutor rather than a passive answering engine.
 
-#### A. LLM-as-Judge Metrics
+#### Level 0: Faithfulness Gate
+An educational answer containing factual errors or hallucinations is pedagogically unacceptable. If `Faithfulness` drops below a configurable threshold (default $\tau = 0.50$):
+$$\text{PES} = 0.0$$
 
-These use an LLM to evaluate quality by reasoning over the inputs. They are the most powerful but also the most expensive.
+#### Level 1: Pedagogical State Classification
+The `State` classifier identifies the active pedagogical scenario $S$:
+- **State A (Concept Teaching):** Introducing new domain concepts.
+- **State B (Error Remediation):** Identifying and rectifying student misconceptions.
+- **State C (Socratic Assessment):** Guiding the student toward deductive reasoning through probing questions.
 
-| Metric | What it measures | Inputs used |
-|---|---|---|
-| **Faithfulness** | Are all claims in the answer supported by the contexts? | `answer`, `contexts` |
-| **Answer Relevance** | Does the answer actually address the question? | `question`, `answer` |
-| **Context Precision** | Are the retrieved contexts relevant (signal vs. noise)? | `question`, `contexts`, `ground_truth` |
-| **Context Recall** | Do the contexts cover all information in the ground truth? | `contexts`, `ground_truth` |
+#### Level 2: Sub-Metrics Evaluation
+- **$M_1$ — Uptake (`Uptake`):** Evaluates how effectively the assistant incorporates student context, previous conversational turns, and misconceptions (via NUC-BERT and semantic similarity).
+- **$M_2$ — Linguistic Adaptation (`LinguisticAdaptation`):** Evaluates lexical readability (Flesch-Kincaid / Gulpease), tentative phrasing (*tentativeness*), and constructive tone.
+- **$M_3$ — No Immediate Disclosure (`NoImmediateDisclosure`):** Evaluates scaffolding quality vs. spoiling the solution, penalizing premature disclosure of the complete answer.
 
-**Approach**: Each metric uses structured prompts to extract judgments from the LLM. For example, Faithfulness works in two steps:
-1. **Claim extraction** — decompose the answer into atomic claims
-2. **Verification** — for each claim, check if it's supported by any context chunk
+#### Level 3: Weighted Geometric Mean
+The final score is synthesized via a state-dependent weighted geometric mean:
+$$\text{PES}(S) = \left( \prod_{i=1}^{3} M_i^{w_i(S)} \right)^{\frac{1}{\sum_{i=1}^3 w_i(S)}}$$
 
-#### B. Traditional NLP Metrics
-
-Classical reference-based metrics that compare the generated answer against the ground truth using string/token overlap.
-
-| Metric | Description |
-|---|---|
-| **BLEU** | N-gram precision between answer and ground truth |
-| **ROUGE** (ROUGE-1, ROUGE-2, ROUGE-L) | Recall-oriented n-gram overlap |
-| **F1 Score** | Token-level F1 between answer and ground truth |
-| **Exact Match** | Binary: does the answer exactly match the ground truth? |
-
-These are deterministic, fast, and free (no LLM calls).
-
-#### C. Embedding-Based Metrics
-
-Use pre-trained embedding models to compare semantic meaning.
-
-| Metric | Description |
-|---|---|
-| **Semantic Similarity** | Cosine similarity between answer and ground truth embeddings |
-| **BERTScore** | Token-level embedding similarity using contextual embeddings |
+| State $S$ | Intent Label | $w_1$ (Uptake) | $w_2$ (Adaptation) | $w_3$ (No Disclosure) |
+|---|---|:---:|:---:|:---:|
+| **A** | Concept Teaching | $0.35$ | $0.35$ | $0.30$ |
+| **B** | Error Remediation | $0.00$ | $0.30$ | $0.70$ |
+| **C** | Socratic Assessment | $0.00$ | $0.25$ | $0.75$ |
+| **Other** | Default / General | $0.33$ | $0.33$ | $0.34$ |
 
 ---
 
-### 4.2 Metric Registry
+### 4.2 Standard RAG Triad Metrics (LLM-as-a-Judge)
 
-Metrics are registered by name and can be instantiated from configuration:
+Implemented with robust prompting, atomic decomposition, and reasoning engines:
 
-```python
-# Config-driven usage
-config = EvalConfig.from_yaml("configs/default.yaml")
-# config.metrics = ["faithfulness", "answer_relevance", "bleu", "rouge_l"]
-# The evaluator resolves names → metric instances via the registry
-```
+1. **Faithfulness (`faithfulness.py`):** Decomposes the answer into atomic statements and verifies each against the retrieved contexts.
+2. **Answer Relevance (`relevance.py`):** Measures whether the answer directly addresses the core intent of the question.
+3. **Context Precision (`context_precision.py`):** Evaluates whether relevant information is concentrated at top retrieval ranks (signal-to-noise ratio).
+4. **Context Recall (`context_recall.py`):** Verifies that all ground-truth facts are captured within the retrieved contexts.
 
 ---
 
-## 5. Dataset System
+### 4.3 Deterministic & Embedding-Based NLP Metrics
 
-### 5.1 Dataset Loading
-
-The framework supports loading evaluation datasets from:
-
-- **JSON** — array of sample objects
-- **JSONL** — one sample per line (streaming-friendly)
-- **CSV** — tabular format with configurable column mapping
-- **HuggingFace Datasets** — direct loading from the HF Hub
-
-Expected schema:
-```json
-{
-    "question": "What is the capital of France?",
-    "answer": "The capital of France is Paris.",
-    "ground_truth": "Paris",
-    "contexts": ["France is a country in Europe. Its capital is Paris.", "..."]
-}
-```
-
-### 5.2 Built-in Benchmark Support
-
-The framework includes loaders and adapters for standard benchmarks:
-
-| Category | Datasets |
-|---|---|
-| **Standard QA** | HotpotQA, Natural Questions (NQ), TriviaQA, SQuAD 2.0 |
-| **RAG-specific** | RGB, RECALL, CRUD-RAG |
-
-Each benchmark has a dedicated adapter that maps its native format into `TestSample` objects.
-
-### 5.3 Synthetic Data Generation
-
-A central feature of the framework. The `SyntheticGenerator` creates evaluation datasets from raw source documents using LLMs:
-
-```
-Source Documents → [Chunk] → [LLM: Generate QA pairs] → TestSample[]
-```
-
-**Capabilities**:
-- **Question type control**: factual, multi-hop, reasoning, comparative
-- **Difficulty levels**: simple (single-context) to hard (requires synthesis across chunks)
-- **Distractor injection**: generate plausible but irrelevant contexts to test retrieval precision
-- **Ground truth generation**: automatically generate reference answers from the source
-- **Metadata annotation**: tag each sample with source document, chunk IDs, question type
+- **N-gram Overlap:** `BLEU` (via NLTK), `ROUGE-1`, `ROUGE-2`, `ROUGE-L` (via `rouge-score`).
+- **Exact & Token-Level:** `Exact Match`, `Token F1`.
+- **Semantic Representation:** `Semantic Similarity` (Cosine distance on sentence-transformers embeddings), `BERTScore` (Contextual token alignment).
 
 ---
 
-## 6. LLM Client System
+## 5. LLM Client & Provider Architecture
 
-The `LLMClient` provides a unified interface across multiple providers:
+The `LLMClient` provides a unified async interface across cloud and local engines:
 
 ```
-┌─────────────┐
-│  LLMClient   │  ← Unified async interface
-├─────────────┤
-│  OpenAI      │  GPT-4o, GPT-4o-mini, o3, ...
-│  Anthropic   │  Claude Sonnet, Opus, Haiku, ...
-│  Google      │  Gemini 2.5 Pro, Flash, ...
-│  Local       │  Ollama, vLLM, HF Transformers
-└─────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                          LLMClient                          │
+├─────────────────────────────────────────────────────────────┤
+│  • Azure OpenAI Provider  (GPT-5-nano, high reasoning)      │
+│  • OpenAI Provider        (GPT-4o, GPT-4o-mini, o3-mini)    │
+│  • Anthropic Provider     (Claude 3.5 Sonnet, Haiku)        │
+│  • Google Provider        (Gemini 2.5 Pro, Flash)           │
+│  • Ollama Provider        (LLaMA 3.1/3.2, Qwen 2.5 local)   │
+│  • vLLM Provider          (High-throughput vLLM cluster)    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### 6.1 Key Features
+### 5.1 Azure OpenAI & Reasoning Models
+The `AzureOpenAIProvider` supports:
+- Authentication via Azure API keys or Microsoft Entra ID (`DefaultAzureCredential`).
+- Deployment name mapping and configurable API versions (`2024-02-15-preview`, `2024-08-01-preview`, etc.).
+- Reasoning effort control (`reasoning_effort: "high"`, `"medium"`, `"low"`) and extended token ceilings (`max_completion_tokens: 32768`) for deep-reasoning models.
 
-- **Provider abstraction**: switch between providers by changing a config value
-- **Retry logic**: exponential backoff with jitter for rate limits
-- **Token tracking**: count input/output tokens for cost estimation
-- **Caching**: optional response caching to avoid redundant LLM calls during development
-- **Concurrency control**: configurable max concurrent requests per provider
-
-### 6.2 Embedding Client
-
-A parallel `EmbeddingClient` supports embedding generation for semantic metrics:
-- OpenAI `text-embedding-3-small/large`
-- Sentence Transformers (local)
-- Custom embedding endpoints
+### 5.2 Resiliency, Caching & Concurrency
+- **DiskCache (`utils/cache.py`):** Persistent disk cache keyed by prompt, system message, provider, model, and temperature to avoid redundant API spend.
+- **Backoff & Jitter:** Exponential retry logic for HTTP 429 (Rate Limits) and 5xx transient server errors.
+- **Concurrency Limiter:** Per-provider `asyncio.Semaphore` preventing rate-limit saturation.
 
 ---
 
-## 7. Pipeline / Evaluator
+## 6. Dataset Ingestion & Benchmarks
 
-The `Evaluator` is the orchestration layer that ties everything together:
+### 6.1 Supported Formats
+- Standard JSON arrays of `TestSample`.
+- Streaming JSON Lines (`.jsonl`).
+- Comma-Separated Values (`.csv`) with automatic column mapping.
 
-```
-1. Load config (YAML / programmatic)
-2. Load dataset (file / benchmark / synthetic)
-3. Instantiate metrics (from config or explicit list)
-4. Run evaluation:
-   for each sample:
-       for each metric:
-           result = await metric.score(sample)
-5. Aggregate results into EvalReport
-6. Export report (JSON / HTML / console)
-```
+### 6.2 Specialized Tutoring & Research Loaders
+- **`MathDialLoader` (`datasets/mathdial_loader.py`):** Loads teacher-student mathematical dialogues, mapping teacher moves (*probing*, *focus*, *telling*) and conversational state to evaluation samples.
+- **`MRBenchLoader` (`datasets/mrbench_loader.py`):** Ingests the MRBench v3 dataset for multi-model reasoning comparisons.
+- **Standard QA Benchmarks:** Built-in adapters for HotpotQA, Natural Questions, TriviaQA, SQuAD 2.0, RGB, and RECALL.
 
-### 7.1 Execution Modes
-
-| Mode | Description |
-|---|---|
-| **Sequential** | Evaluate one sample at a time (simple, debuggable) |
-| **Batch** | Process samples in configurable batch sizes |
-| **Concurrent** | Run multiple metric evaluations in parallel using `asyncio` |
-
-### 7.2 Configuration Comparison (Nice-to-have)
-
-Support running the same dataset through multiple RAG configurations and producing a comparative report:
-
-```python
-evaluator.compare(
-    samples_a=samples_config_a,
-    samples_b=samples_config_b,
-    metrics=[Faithfulness(), AnswerRelevance()],
-)
-# → Comparative table with per-metric deltas
-```
+### 6.3 Synthetic Data Generator (`SyntheticDataGenerator`)
+Enables zero-ground-truth evaluation by extracting semantic chunks from text, injecting distractor contexts, and stochastically simulating realistic RAG behavior (grounded answers, hallucinations, and unanswerability).
 
 ---
 
-## 8. Reporting System
+## 7. Pipeline, Evaluator & Fault Tolerance
 
-### 8.1 Output Formats
+The `Evaluator` orchestrates data loading, metric instantiation, execution, and reporting:
 
-| Format | Use Case |
-|---|---|
-| **Console** (Rich) | Quick inspection during development |
-| **JSON** | Machine-readable, for downstream processing |
-| **HTML** | Visual report with charts for thesis/presentation |
-| **CSV** | Import into spreadsheets or data analysis tools |
-
-### 8.2 Report Contents
-
-- Per-sample scores for every metric
-- Aggregate statistics (mean, median, std, min, max per metric)
-- Score distributions (histograms)
-- Failure case analysis (lowest-scoring samples)
-- Cost tracking (tokens used, estimated cost)
-
----
-
-## 9. CLI Interface
-
-The framework provides a command-line interface for common operations:
-
-```bash
-# Run a full evaluation
-rag-eval evaluate --config configs/default.yaml --dataset data/eval.json
-
-# Generate synthetic data
-rag-eval generate --documents docs/ --output data/synthetic.json --num-samples 100
-
-# View results
-rag-eval report --input output/results.json --format html
-
-# List available metrics
-rag-eval metrics --list
+```
+Config / CLI ──▶ Load Samples ──▶ Batch Evaluation Loop ──▶ Checkpoint Save ──▶ Report Generator
 ```
 
----
+### 7.1 Fault-Tolerant Checkpointing
+For large-scale evaluations (such as the 2,475 samples of MRBench taking over 50 hours of compute), the pipeline periodically dumps batch checkpoints into `.rag_eval_cache/`. In case of network interruption or hardware failure, the evaluator resumes seamlessly from the last completed batch.
 
-## 10. LangChain Integration
-
-For users with existing LangChain RAG pipelines, the framework provides an adapter:
-
-```python
-from rag_eval.integrations.langchain import LangChainAdapter
-
-# Wrap your existing chain
-adapter = LangChainAdapter(chain=my_rag_chain)
-
-# Automatically extracts question, answer, and contexts from the chain
-samples = adapter.run(questions=["What is X?", "How does Y work?"])
-
-# Evaluate normally
-report = evaluator.evaluate(samples)
-```
-
-The adapter hooks into LangChain's callback system to capture:
-- The user query
-- Retrieved documents (with metadata)
-- The final generated answer
+### 7.2 Multi-Configuration Comparator
+The `Comparator` (`pipeline/comparator.py`) supports side-by-side comparative analysis of different RAG pipelines (e.g., Naive RAG vs. Advanced RAG with reranking), computing delta metrics and statistical distributions.
 
 ---
 
-## 11. Package Structure
+## 8. Reporting & Visualization
+
+Results are exported via `ReportGenerator`:
+- **Interactive HTML Dashboard:** Features Chart.js visualizations, metric histograms, radar comparison charts, and per-sample drill-downs.
+- **Machine-Readable JSON:** Full evaluation payload including prompt tokens, reasoning tokens, latency, and judgment explanations.
+- **CSV Export:** Tabular summary suitable for statistical tools (R, Pandas, SPSS).
+- **Rich Console Tables:** Color-coded terminal summaries for rapid CLI debugging.
+
+---
+
+## 9. Package Structure
 
 ```
 src/rag_eval/
 ├── __init__.py
-├── core/                       # Foundation layer
-│   ├── types.py                # TestSample, EvalResult, EvalReport
-│   ├── config.py               # LLMConfig, EvalConfig, YAML loading
-│   └── registry.py             # Metric/provider registry
-├── metrics/                    # All evaluation metrics
-│   ├── base.py                 # BaseMetric ABC
-│   ├── faithfulness.py         # LLM-judge: answer grounding
-│   ├── relevance.py            # LLM-judge: answer relevance
-│   ├── context_precision.py    # LLM-judge: retrieval precision
-│   ├── context_recall.py       # LLM-judge: retrieval recall
-│   ├── semantic_similarity.py  # Embedding: cosine similarity
-│   ├── bert_score.py           # Embedding: BERTScore
-│   ├── bleu.py                 # NLP: BLEU score
-│   ├── rouge.py                # NLP: ROUGE variants
-│   ├── f1.py                   # NLP: token-level F1
-│   └── exact_match.py          # NLP: exact match
-├── datasets/                   # Data ingestion
-│   ├── loader.py               # JSON/JSONL/CSV loading
-│   ├── synthetic.py            # LLM-based QA generation
-│   └── benchmarks/             # Built-in benchmark adapters
-│       ├── hotpotqa.py
-│       ├── natural_questions.py
-│       ├── triviaqa.py
-│       └── squad.py
-├── pipeline/                   # Orchestration
-│   ├── evaluator.py            # Main Evaluator class
-│   └── comparator.py           # Multi-config comparison
-├── integrations/               # External framework adapters
-│   └── langchain.py            # LangChain adapter
-├── reports/                    # Result export
-│   └── generator.py            # Multi-format report generation
-├── cli/                        # Command-line interface
-│   └── main.py                 # CLI entry point (click/typer)
-└── utils/                      # Shared utilities
-    ├── llm.py                  # Multi-provider LLM client
-    ├── embeddings.py           # Embedding client
-    ├── text.py                 # Text processing helpers
-    └── cache.py                # Response caching
+├── core/                         # Core abstractions & configuration
+│   ├── config.py                 # EvalConfig, LLMConfig, EmbeddingConfig
+│   ├── registry.py               # MetricRegistry with autodiscovery
+│   └── types.py                  # TestSample, EvalResult, EvalReport
+├── metrics/                      # Metric implementations
+│   ├── base.py                   # BaseMetric abstract base class
+│   ├── pes.py                    # Composite Pedagogical Evaluation Score
+│   ├── no_immediate_disclosure.py# M3: Scaffolding vs. spoiling metric
+│   ├── linguistic_adaptation.py  # M2: Readability, tentativeness, critique
+│   ├── uptake.py                 # M1: Conversational context elaboration
+│   ├── state.py                  # Pedagogical state classifier (A, B, C)
+│   ├── faithfulness.py           # Atomic claim verification (RAG Triad)
+│   ├── relevance.py              # Query-response alignment (RAG Triad)
+│   ├── context_precision.py      # Signal-to-noise ranking (RAG Triad)
+│   ├── context_recall.py         # Ground truth coverage (RAG Triad)
+│   ├── semantic_similarity.py    # Embedding cosine similarity
+│   ├── bert_score.py             # Contextual token alignment
+│   ├── bleu.py                   # BLEU-1 to BLEU-4
+│   ├── rouge.py                  # ROUGE-1, ROUGE-2, ROUGE-L
+│   ├── f1.py                     # Token-level F1 score
+│   └── exact_match.py            # Exact string matching
+├── datasets/                     # Data ingestion & generation
+│   ├── loader.py                 # Generic JSON/JSONL/CSV loader
+│   ├── mathdial_loader.py        # MathDial tutorial dialogue loader
+│   ├── mrbench_loader.py         # MRBench v3 dataset loader
+│   ├── synthetic.py              # Semantic chunking & QA generator
+│   └── benchmarks/               # Adapters for standard QA benchmarks
+├── pipeline/                     # Execution engine
+│   ├── evaluator.py              # Orchestrator with batch checkpointing
+│   └── comparator.py             # A/B configuration comparison
+├── reports/                      # Export engines
+│   ├── generator.py              # JSON, HTML, CSV, Console exports
+│   ├── templates/                # Jinja2 HTML dashboard templates
+│   └── vendor/                   # Embedded Bootstrap and Chart.js
+├── cli/                          # Command-line interface
+│   └── main.py                   # Typer application (evaluate, generate, report)
+└── utils/                        # Infrastructure & helpers
+    ├── llm.py                    # Unified LLMClient
+    ├── cache.py                  # Disk response caching
+    ├── chunking.py               # Semantic-aware text chunker
+    ├── embeddings.py             # SentenceTransformers embedding client
+    ├── text.py                   # Text cleaning & normalization
+    └── providers/                # Cloud & local LLM providers
+        ├── azure_provider.py     # Azure OpenAI (GPT-5-nano reasoning)
+        ├── openai_provider.py    # OpenAI (GPT-4o, o3-mini)
+        ├── anthropic_provider.py # Anthropic (Claude 3.5)
+        ├── google_provider.py    # Google (Gemini 2.5)
+        ├── ollama_provider.py    # Ollama local runtime
+        └── vllm_provider.py      # vLLM high-concurrency server
 ```
-
----
-
-## 12. Technology Stack
-
-| Component | Technology |
-|---|---|
-| Language | Python 3.10+ |
-| Data models | Pydantic v2 |
-| Async runtime | asyncio |
-| LLM clients | openai, anthropic, google-genai SDKs |
-| Local models | Ollama, vLLM |
-| Embeddings | sentence-transformers, OpenAI |
-| NLP metrics | nltk (BLEU), rouge-score, bert-score |
-| CLI | Typer + Rich |
-| Data | pandas, numpy |
-| ML utilities | scikit-learn |
-| Config | PyYAML |
-| Testing | pytest, pytest-asyncio |
-| Linting | Ruff, mypy |

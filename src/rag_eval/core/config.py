@@ -17,8 +17,8 @@ class LLMConfig(BaseModel):
 
     provider: str = Field(
         default="ollama",
-        description="LLM provider: 'openai', 'anthropic', 'google', 'ollama', 'vllm'.",
-        pattern=r'^(openai|anthropic|google|ollama|vllm)$',
+        description="LLM provider: 'openai', 'anthropic', 'google', 'ollama', 'vllm', 'azure'.",
+        pattern=r'^(openai|anthropic|google|ollama|vllm|azure)$',
     )
     model: str = Field(
         default="llama3.2",
@@ -34,8 +34,22 @@ class LLMConfig(BaseModel):
         default="",
         description="Custom API base URL (for Ollama, vLLM, Azure, etc.).",
     )
+    api_version: str = Field(
+        default="2024-06-01",
+        description="API version for Azure OpenAI.",
+    )
+    reasoning_effort: str = Field(
+        default="high",
+        description="Reasoning effort for reasoning models ('low', 'medium', 'high').",
+    )
     timeout: float = Field(default=300.0, gt=0, description="Request timeout in seconds.")
     max_retries: int = Field(default=5, ge=0, description="Max retries on transient errors.")
+
+    def model_post_init(self, __context: Any) -> None:
+        if self.provider == "azure" and self.model == "llama3.2":
+            azure_model = os.getenv("AZURE_MODELS") or os.getenv("AZURE_MODEL")
+            if azure_model:
+                self.model = azure_model.strip().strip('"')
 
     def get_api_key(self) -> str:
         """Resolve API key: explicit value > env var."""
@@ -46,10 +60,11 @@ class LLMConfig(BaseModel):
             "openai": "OPENAI_API_KEY",
             "anthropic": "ANTHROPIC_API_KEY",
             "google": "GOOGLE_API_KEY",
+            "azure": "AZURE_OPENAI_API_KEY",
         }
         env_var = env_var_map.get(self.provider, "")
         if env_var:
-            return os.getenv(env_var, "")
+            return os.getenv(env_var, "").strip().strip('"')
         return ""
 
     def get_api_base(self) -> str:
@@ -60,6 +75,7 @@ class LLMConfig(BaseModel):
         defaults = {
             "ollama": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
             "vllm": os.getenv("VLLM_BASE_URL", "http://localhost:8000"),
+            "azure": os.getenv("AZURE_OPENAI_ENDPOINT", "").strip().strip('"'),
         }
         return defaults.get(self.provider, "")
 

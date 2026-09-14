@@ -36,7 +36,12 @@ class Faithfulness(BaseMetric):
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
-            claims = result_json.get("claims", [])
+            if not isinstance(result_json, dict):
+                raise ValueError(f"LLM did not return a JSON dictionary: {result_json}")
+
+            claims = result_json.get("claims")
+            if claims is None:
+                raise ValueError(f"LLM response missing 'claims' key: {result_json}")
             
             if not claims:
                 score = 1.0  # 0 claims means no unfaithful claims

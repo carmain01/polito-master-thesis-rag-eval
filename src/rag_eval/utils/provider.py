@@ -34,6 +34,7 @@ MODEL_PRICING: dict[str, tuple[float, float]] = {
     "o3": (2.00, 8.00),
     "o3-mini": (1.10, 4.40),
     "o4-mini": (1.10, 4.40),
+    "gpt-5-nano": (0.05, 0.20),
     # Anthropic
     "claude-sonnet-4-20250514": (3.00, 15.00),
     "claude-opus-4-20250514": (15.00, 75.00),

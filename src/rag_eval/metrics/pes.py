@@ -231,20 +231,8 @@ class PES(BaseMetric):
 
             if faithfulness_score < self._faithfulness_threshold:
                 gate_failed = True
-                metadata["gate_failed"] = True
-                return EvalResult(
-                    metric_name=self.name,
-                    score=0.0,
-                    reason=(
-                        f"Faithfulness gate FAILED "
-                        f"(score={faithfulness_score:.4f} < "
-                        f"threshold={self._faithfulness_threshold}). "
-                        f"PES forced to 0.0."
-                    ),
-                    metadata=metadata,
-                )
 
-        metadata["gate_failed"] = False
+        metadata["gate_failed"] = gate_failed
 
         # ---- Level 1: State classification ----
         state_result = await self._state.score(sample)
@@ -278,6 +266,12 @@ class PES(BaseMetric):
         pes_score = self._weighted_geometric_mean(m1, m2, m3, w1, w2, w3)
         pes_score = max(0.0, min(1.0, round(pes_score, 4)))
 
+        # ---- Apply faithfulness gate (override score, keep all metadata) ----
+        if gate_failed:
+            raw_pes = pes_score
+            pes_score = 0.0
+            metadata["pes_before_gate"] = raw_pes
+
         # Build a human-readable reason string.
         reason_parts = [
             f"State={state_code or '?'} ({state_label or 'unknown'})",
@@ -285,7 +279,8 @@ class PES(BaseMetric):
             f"M1={m1:.4f}, M2={m2:.4f}, M3={m3:.4f}",
         ]
         if faithfulness_score is not None:
-            reason_parts.append(f"faithfulness={faithfulness_score:.4f} (gate PASSED)")
+            gate_status = "FAILED" if gate_failed else "PASSED"
+            reason_parts.append(f"faithfulness={faithfulness_score:.4f} (gate {gate_status})")
         reason = " | ".join(reason_parts)
 
         return EvalResult(

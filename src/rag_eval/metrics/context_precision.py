@@ -36,7 +36,12 @@ class ContextPrecision(BaseMetric):
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
-            evals = result_json.get("evaluations", [])
+            if not isinstance(result_json, dict):
+                raise ValueError(f"LLM did not return a JSON dictionary: {result_json}")
+
+            evals = result_json.get("evaluations")
+            if evals is None:
+                raise ValueError(f"LLM response missing 'evaluations' key: {result_json}")
             
             if not evals:
                 score = 1.0  # No evaluations returned — precision is vacuously 1.0 (no irrelevant chunks retrieved).

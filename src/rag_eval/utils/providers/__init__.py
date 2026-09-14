@@ -45,7 +45,12 @@ def create_provider(config: LLMConfig) -> BaseLLMProvider:
 
         return VLLMProvider(config)
 
-    supported = ["openai", "anthropic", "google", "ollama", "vllm"]
+    if provider_name == "azure":
+        from rag_eval.utils.providers.azure_provider import AzureProvider
+
+        return AzureProvider(config)
+
+    supported = ["openai", "anthropic", "google", "ollama", "vllm", "azure"]
     raise ValueError(f"Unknown provider '{provider_name}'. Supported: {', '.join(supported)}")
 
 

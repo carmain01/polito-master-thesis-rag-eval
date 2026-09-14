@@ -104,6 +104,17 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable the faithfulness gate entirely.",
     )
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=None,
+        help="Starting sample index (e.g. 300 to skip the first 300).",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Automatically resume from the last evaluated sample index found in output-dir.",
+    )
     return parser.parse_args()
 
 
@@ -111,6 +122,7 @@ def build_results_dataframe(
     report: EvalReport,
     annotations: list[dict],
     samples: list[TestSample],
+    start_index: int = 0,
 ) -> pd.DataFrame:
     """Merge PES results with MathDial annotations into a single DataFrame."""
     rows = []
@@ -120,10 +132,11 @@ def build_results_dataframe(
         if res.metric_name == "pes":
             pes_by_index[res.sample_index] = res
 
-    for idx, (sample, annot) in enumerate(zip(samples, annotations)):
-        pes_result = pes_by_index.get(idx)
+    for local_idx, (sample, annot) in enumerate(zip(samples, annotations)):
+        global_idx = start_index + local_idx
+        pes_result = pes_by_index.get(global_idx)
         if pes_result is None:
-            logger.warning("No PES result for sample %d, skipping.", idx)
+            logger.warning("No PES result for sample %d, skipping.", global_idx)
             continue
 
         meta = pes_result.metadata or {}
@@ -131,9 +144,10 @@ def build_results_dataframe(
         m2_data = meta.get("M2_linguistic_adaptation", {})
         m3_data = meta.get("M3_no_immediate_disclosure", {})
         state_data = meta.get("state", {})
+        faith_data = meta.get("faithfulness", {})
 
         row = {
-            "sample_index": idx,
+            "sample_index": global_idx,
             "conversation_id": annot["conversation_id"],
             "qid": annot["qid"],
             "teacher_move": annot["teacher_move"],
@@ -141,6 +155,8 @@ def build_results_dataframe(
             "self_correctness": annot["self_correctness"],
             "turn_index": annot["turn_index"],
             "pes_score": pes_result.score,
+            "pes_before_gate": meta.get("pes_before_gate", pes_result.score),
+            "faithfulness_score": faith_data.get("score", None),
             "M1_uptake": m1_data.get("score", None),
             "M2_linguistic": m2_data.get("score", None),
             "M3_disclosure": m3_data.get("score", None),
@@ -159,16 +175,59 @@ def main() -> None:
     args = parse_args()
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = output_dir / "mathdial_pes_dataframe.csv"
+    raw_path = output_dir / "mathdial_pes_results.json"
 
     # ── Step A: Load MathDial ─────────────────────────────────────────
     dataset_path = f"{args.data_dir}/{args.split}.jsonl"
     logger.info("Loading MathDial (%s) from %s ...", args.split, dataset_path)
-    samples, annotations = load_mathdial(dataset_path, limit=args.limit)
-    logger.info("Loaded %d teacher-turn samples.", len(samples))
+    all_samples, all_annotations = load_mathdial(dataset_path)
+    logger.info("Loaded %d total teacher-turn samples from dataset.", len(all_samples))
 
-    # Print teacher move distribution
+    # Determine offset & resume logic
+    offset = 0
+    existing_df = None
+    if args.resume:
+        if csv_path.exists():
+            try:
+                existing_df = pd.read_csv(csv_path)
+                if not existing_df.empty and "sample_index" in existing_df.columns:
+                    max_idx = int(existing_df["sample_index"].max())
+                    offset = max_idx + 1
+                    logger.info(
+                        "Found %d existing results in %s (max sample_index=%d). Resuming from offset %d.",
+                        len(existing_df), csv_path, max_idx, offset,
+                    )
+                else:
+                    logger.warning("Existing CSV is empty or has no sample_index; starting from 0.")
+            except Exception as e:
+                logger.warning("Could not read %s for resume: %s. Starting from 0.", csv_path, e)
+        else:
+            logger.info("--resume passed but %s does not exist. Starting from 0.", csv_path)
+    elif args.offset is not None:
+        offset = args.offset
+        if csv_path.exists():
+            try:
+                existing_df = pd.read_csv(csv_path)
+            except Exception:
+                pass
+
+    if offset >= len(all_samples):
+        logger.info("Offset (%d) >= total samples (%d). Evaluation is already complete!", offset, len(all_samples))
+        return
+
+    samples = all_samples[offset:]
+    annotations = all_annotations[offset:]
+
+    if args.limit is not None:
+        samples = samples[: args.limit]
+        annotations = annotations[: args.limit]
+
+    logger.info("Selected %d samples for evaluation (offset=%d to %d).", len(samples), offset, offset + len(samples) - 1)
+
+    # Print teacher move distribution for selected slice
     move_dist = Counter(a["teacher_move"] for a in annotations)
-    logger.info("Teacher move distribution: %s", dict(move_dist))
+    logger.info("Teacher move distribution (current run): %s", dict(move_dist))
 
     # ── Step B: Run PES evaluation ────────────────────────────────────
     logger.info("Initializing LLM client: provider=%s, model=%s", args.provider, args.model)
@@ -190,9 +249,23 @@ def main() -> None:
         args.faithfulness_threshold,
     )
 
+    def on_batch_complete(current_report: EvalReport, batch_num: int) -> None:
+        try:
+            curr_df = build_results_dataframe(current_report, annotations, samples, start_index=offset)
+            if existing_df is not None and not existing_df.empty:
+                full_df = pd.concat([existing_df, curr_df], ignore_index=True)
+                full_df = full_df.drop_duplicates(subset=["sample_index"], keep="last").sort_values("sample_index").reset_index(drop=True)
+            else:
+                full_df = curr_df
+            full_df.to_csv(csv_path, index=False, encoding="utf-8")
+            logger.info("Incremental checkpoint batch %d saved to %s (%d rows)", batch_num, csv_path, len(full_df))
+        except Exception as e:
+            logger.warning("Failed to incrementally update CSV at batch %d: %s", batch_num, e)
+
     evaluator = Evaluator(
         metrics=[pes_metric],
         cache_dir=str(output_dir / ".pes_cache"),
+        on_batch_complete=on_batch_complete,
     )
 
     start_time = time.time()
@@ -205,33 +278,59 @@ def main() -> None:
         samples,
         batch_size=args.batch_size,
         max_concurrency=args.max_concurrency,
+        start_index=offset,
     )
 
     elapsed = time.time() - start_time
-    logger.info("Evaluation completed in %.1f seconds (%.1f min).", elapsed, elapsed / 60)
+    logger.info("Evaluation run completed in %.1f seconds (%.1f min).", elapsed, elapsed / 60)
+
+    # ── Build and merge DataFrame ──────────────────────────────────────
+    new_df = build_results_dataframe(report, annotations, samples, start_index=offset)
+    if existing_df is not None and not existing_df.empty and (args.resume or offset > 0):
+        df = pd.concat([existing_df, new_df], ignore_index=True)
+        df = df.drop_duplicates(subset=["sample_index"], keep="last").sort_values("sample_index").reset_index(drop=True)
+        logger.info(
+            "Merged %d new rows with %d existing rows -> %d total rows in DataFrame.",
+            len(new_df), len(existing_df), len(df),
+        )
+    else:
+        df = new_df
+
+    df.to_csv(csv_path, index=False, encoding="utf-8")
+    logger.info("DataFrame saved to %s (%d rows, %d cols)", csv_path, len(df), len(df.columns))
 
     # ── Save raw results ──────────────────────────────────────────────
-    raw_path = output_dir / "mathdial_pes_results.json"
+    merged_report = report.model_dump(mode="json")
+    prev_elapsed = 0.0
+    if (args.resume or offset > 0) and raw_path.exists():
+        try:
+            with open(raw_path, "r", encoding="utf-8") as f:
+                old_raw = json.load(f)
+            old_results = old_raw.get("report", {}).get("results", [])
+            prev_elapsed = float(old_raw.get("metadata", {}).get("elapsed_seconds", 0.0))
+            new_indices = {res.sample_index for res in report.results}
+            filtered_old = [r for r in old_results if r.get("sample_index") not in new_indices]
+            all_raw_results = filtered_old + merged_report.get("results", [])
+            all_raw_results.sort(key=lambda r: r.get("sample_index", 0))
+            merged_report["results"] = all_raw_results
+        except Exception as e:
+            logger.warning("Could not merge with existing raw results: %s", e)
+
     report_data = {
         "metadata": {
             "dataset": "mathdial",
             "split": args.split,
             "model": args.model,
             "provider": args.provider,
-            "num_samples": len(samples),
-            "elapsed_seconds": round(elapsed, 1),
+            "num_samples": len(df),
+            "elapsed_seconds": round(prev_elapsed + elapsed, 1),
             "faithfulness_threshold": args.faithfulness_threshold,
         },
-        "report": report.model_dump(mode="json"),
+        "report": merged_report,
     }
     with open(raw_path, "w", encoding="utf-8") as f:
         json.dump(report_data, f, indent=2, ensure_ascii=False)
     logger.info("Raw results saved to %s", raw_path)
-
-    # ── Build and save DataFrame ──────────────────────────────────────
-    df = build_results_dataframe(report, annotations, samples)
-    csv_path = output_dir / "mathdial_pes_dataframe.csv"
-    df.to_csv(csv_path, index=False, encoding="utf-8")
     logger.info("DataFrame saved to %s (%d rows, %d cols)", csv_path, len(df), len(df.columns))
 
     # ── Summary ───────────────────────────────────────────────────────

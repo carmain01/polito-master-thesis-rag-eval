@@ -175,7 +175,15 @@ def evaluate(
     ] = "json,html,csv,console",
     provider: Annotated[
         str | None,
-        typer.Option("--provider", "-p", help="LLM provider override (openai, ollama, vllm, ...)."),
+        typer.Option("--provider", "-p", help="LLM provider override (openai, azure, ollama, vllm, ...)."),
+    ] = None,
+    model: Annotated[
+        str | None,
+        typer.Option("--model", help="LLM model override (e.g. gpt-5-nano, gpt-4o, llama3.2)."),
+    ] = None,
+    reasoning_effort: Annotated[
+        str | None,
+        typer.Option("--reasoning-effort", help="Reasoning effort override ('low', 'medium', 'high')."),
     ] = None,
     max_concurrency: Annotated[
         int, typer.Option("--max-concurrency", help="Maximum concurrent evaluations.")
@@ -195,6 +203,15 @@ def evaluate(
     # Apply CLI overrides
     if provider:
         eval_config.llm.provider = provider
+    if model:
+        eval_config.llm.model = model
+    elif eval_config.llm.provider == "azure" and eval_config.llm.model == "llama3.2":
+        import os
+        azure_model = os.getenv("AZURE_MODELS") or os.getenv("AZURE_MODEL")
+        if azure_model:
+            eval_config.llm.model = azure_model.strip().strip('"')
+    if reasoning_effort:
+        eval_config.llm.reasoning_effort = reasoning_effort
     if metrics:
         eval_config.metrics = [m.strip() for m in metrics.split(",")]
 

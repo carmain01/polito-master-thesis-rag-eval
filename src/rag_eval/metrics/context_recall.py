@@ -39,7 +39,12 @@ class ContextRecall(BaseMetric):
 
         try:
             result_json = await self.llm.complete_json(prompt=prompt)
-            statements = result_json.get("statements", [])
+            if not isinstance(result_json, dict):
+                raise ValueError(f"LLM did not return a JSON dictionary: {result_json}")
+
+            statements = result_json.get("statements")
+            if statements is None:
+                raise ValueError(f"LLM response missing 'statements' key: {result_json}")
             
             if not statements:
                 score = 0.0

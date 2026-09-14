@@ -1,30 +1,91 @@
 # Environment
 .env
+.env.*
+!.env.example
 .venv/
 venv/
+env/
 
-# Python
+# Python & Build
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
 dist/
 build/
 *.egg
 
-# IDE
+# Testing & Quality
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+
+# IDE & Editors
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Output
+# Output & Logs
 output/
 *.log
+*.bak
+*.tmp
 
-# Cache
+# Caches
 .cache/
-
-# NLTK data
+.rag_eval_cache/
 nltk_data/
+
+# Tools & Extensions
+.texpilot/
+
+# Archives
+*.zip
+*.tar.gz
+
+# Thesis (LaTeX sources & build artifacts)
+thesis/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.glo
+*.glo-abr
+*.idx
+*.ilg
+*.ind
+*.ist
+*.lof
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+
+# Data (track only compiled golden datasets)
+data/*
+!data/golden_dataset_compiled.json
+!data/golden_dataset_pes_compiled.json
+
+# Documentation (track only core framework documentation)
+docs/*
+!docs/README.md
+!docs/SYSTEM_OVERVIEW.md
+!docs/cli.md
+!docs/SYNTHETIC_GENERATION.md
