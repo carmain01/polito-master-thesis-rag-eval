@@ -11,7 +11,7 @@ Beyond standard factual evaluation, the framework introduces the **Pedagogical E
 ### 1.2 Context & Thesis Background
 
 Developed as part of a Master's Thesis in Computer Engineering at Politecnico di Torino, the framework serves as the experimental backbone for:
-- Evaluating enterprise RAG deployments (such as the United Nations System Staff College - UNSSC educational platform).
+- Evaluating enterprise RAG deployments across institutional knowledge bases and continuous learning platforms.
 - Validating the pedagogical quality of LLMs in tutorial interactions.
 - Benchmarking state-of-the-art models (OpenAI GPT-4o, Azure GPT-5-nano reasoning models, Meta LLaMA 3.1/3.2, Qwen 2.5) on real-world and synthetic datasets.
 

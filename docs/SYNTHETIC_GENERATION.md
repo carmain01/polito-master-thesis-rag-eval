@@ -2,7 +2,7 @@
 
 ## 1. Overview & Research Motivation
 
-In many real-world and enterprise settings — including educational platforms such as the UNSSC knowledge base — labeled ground-truth datasets (aligned triplets of query, retrieved context, and reference answer) are scarce or completely absent. Manually annotating thousands of educational queries is prohibitively expensive and difficult to standardize.
+In many real-world and enterprise settings — including institutional e-learning platforms and corporate knowledge bases — labeled ground-truth datasets (aligned triplets of query, retrieved context, and reference answer) are scarce or completely absent. Manually annotating thousands of educational queries is prohibitively expensive and difficult to standardize.
 
 To overcome this bottleneck, the **`rag_eval`** framework incorporates an automated **Synthetic Data Generation Engine** (`SyntheticDataGenerator` in `src/rag_eval/datasets/synthetic.py`). The pipeline ingests unstructured domain documents and produces high-quality, diverse, and stochastically realistic `TestSample` datasets ready for evaluation.
 
