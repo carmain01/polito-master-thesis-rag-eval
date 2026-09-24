@@ -54,8 +54,10 @@ nltk_data/
 *.zip
 *.tar.gz
 
-# Thesis (LaTeX sources & build artifacts)
-thesis/
+# Thesis (track only compiled PDFs, ignore sources & build artifacts)
+thesis/*
+!thesis/*.pdf
+/thesis_s333307.pdf
 *.aux
 *.bbl
 *.bcf
